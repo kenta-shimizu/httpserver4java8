@@ -10,6 +10,12 @@ public class HttpServerTest {
 		
 		echo("Test start");
 		
+		String x = "a b";
+		
+		String[] ss = x.split(" ", 3);
+		
+		echo("coutn: " + ss.length);
+		
 		// TODO Auto-generated method stub
 
 		echo("Test finished.");
