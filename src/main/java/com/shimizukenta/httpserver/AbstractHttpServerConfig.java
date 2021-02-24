@@ -1,18 +1,28 @@
 package com.shimizukenta.httpserver;
 
+import java.io.Serializable;
 import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public abstract class AbstractHttpServerConfig {
+public abstract class AbstractHttpServerConfig implements Serializable {
+	
+	private static final long serialVersionUID = -438846997741190044L;
+	
+	private static final long defaultConnectionTimeout = 180;
 	
 	private final Set<SocketAddress> serverAddresses = new CopyOnWriteArraySet<>();
-	private String serverName;
+	private long connectionTimeout;
+	
+	private long keepAliveTimeout;
+	private int keepAliveMax;
 	
 	public AbstractHttpServerConfig() {
-		this.serverName = "HTTPSERVER";
+		this.connectionTimeout = defaultConnectionTimeout;
+		this.keepAliveTimeout = 5L;
+		this.keepAliveMax = 100;
 	}
 	
 	/**
@@ -53,29 +63,68 @@ public abstract class AbstractHttpServerConfig {
 	}
 	
 	/**
-	 * Server-Name getter.
+	 * Return Connection-Timeout seconds.
 	 * 
-	 * @return Server-Name
+	 * @return Connection-Timeout seconds
 	 */
-	public String serverName() {
+	public long connectionTimeout() {
 		synchronized ( this ) {
-			return this.serverName;
+			return this.connectionTimeout;
 		}
 	}
 	
 	/**
-	 * Server-Name setter.
+	 * Connection-Timeout setter.
 	 * 
-	 * <p>
-	 * Not accept {@code null}.<br />
-	 * </p>
-	 * 
-	 * @param name
+	 * @param seconds
 	 */
-	public void serverName(CharSequence name) {
+	public void connectionTimeout(long seconds) {
 		synchronized ( this ) {
-			this.serverName = Objects.requireNonNull(name).toString();
+			this.connectionTimeout = seconds;
 		}
 	}
 	
+	/**
+	 * Keep-Alive timeout getter.
+	 * 
+	 * @return Keep-Alive timeout
+	 */
+	public long keepAliveTimeout() {
+		synchronized ( this ) {
+			return this.keepAliveTimeout;
+		}
+	}
+	
+	/**
+	 * Keep-Alive timeout setter.
+	 * 
+	 * @param timeoutSeconds
+	 */
+	public void keepAliveTimeout(long timeoutSeconds) {
+		synchronized ( this ) {
+			this.keepAliveTimeout = timeoutSeconds;
+		}
+	}
+	
+	/**
+	 * Keep-Alive max getter.
+	 * 
+	 * @return Keep-Alive max
+	 */
+	public int keepAliveMax() {
+		synchronized ( this ) {
+			return this.keepAliveMax;
+		}
+	}
+	
+	/**
+	 * Keep-Alive max setter.
+	 * 
+	 * @param max
+	 */
+	public void keepAliveMax(int max) {
+		synchronized ( this ) {
+			this.keepAliveMax = max;
+		}
+	}
 }

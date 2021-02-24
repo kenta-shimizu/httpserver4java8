@@ -33,6 +33,13 @@ public interface HttpMessage {
 	public List<HttpHeader> headers();
 	
 	/**
+	 * Returns HttpHeaderListParser.
+	 * 
+	 * @return HttpHeaderListParser
+	 */
+	public HttpHeaderListParser headerListParser();
+	
+	/**
 	 * Returns body-bytes.
 	 * 
 	 * @return body-bytes

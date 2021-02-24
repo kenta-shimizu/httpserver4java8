@@ -34,8 +34,4 @@ public interface HttpRequestMessage extends HttpMessage {
 	 */
 	public String methodString();
 	
-	
-	//TODO
-	//body
-	
 }

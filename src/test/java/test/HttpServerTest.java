@@ -1,22 +1,84 @@
 package test;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+
+import com.shimizukenta.httpserver.AbstractHttpApiServer;
+import com.shimizukenta.httpserver.AbstractHttpServerConfig;
+import com.shimizukenta.httpserver.HttpApi;
+import com.shimizukenta.httpserver.HttpApiServer;
+import com.shimizukenta.httpserver.HttpConnectionValue;
+import com.shimizukenta.httpserver.HttpRequestMessage;
+import com.shimizukenta.httpserver.HttpResponseCode;
+import com.shimizukenta.httpserver.HttpResponseMessage;
+import com.shimizukenta.httpserver.HttpServerException;
+
 public class HttpServerTest {
 
 	public HttpServerTest() {
 		// TODO Auto-generated constructor stub
 	}
-
+	
 	public static void main(String[] args) {
 		
 		echo("Test start");
 		
-		String x = "a b";
+		AbstractHttpServerConfig config = new AbstractHttpServerConfig() {
+			
+			private static final long serialVersionUID = 6047203276687113314L;
+		};
 		
-		String[] ss = x.split(" ", 3);
 		
-		echo("coutn: " + ss.length);
+//		try {
+//			List<HttpEncoding> encs = HttpEncoding.fromFieldValue("gzip;q=0.4, deflate");
+//			
+//			encs.forEach(enc -> {
+//				echo(enc);
+//			});
+//		}
+//		catch (HttpServerMessageHeaderParseException e) {
+//			echo(e);
+//		}
 		
-		// TODO Auto-generated method stub
+		
+		config.addServerAddress(new InetSocketAddress("127.0.0.1", 8080));
+		
+		try (
+				HttpApiServer server = new AbstractHttpApiServer(config) {};
+				) {
+			
+			server.addApi(new HttpApi() {
+				
+				@Override
+				public boolean accept(HttpRequestMessage request) {
+					return true;
+				}
+
+				@Override
+				public HttpResponseMessage receiveRequest(
+						HttpRequestMessage request,
+						HttpConnectionValue connectionValue)
+								throws InterruptedException, HttpServerException {
+					
+					return HttpResponseMessage.build(request, HttpResponseCode.BadRequest);
+				}
+			});
+			
+			server.addLogListener(log -> {
+				echo(log);
+			});
+			
+			server.open();
+			
+			synchronized ( HttpServerTest.class ) {
+				HttpServerTest.class.wait();
+			}
+		}
+		catch ( InterruptedException ignore ) {
+		}
+		catch ( IOException e ) {
+			echo(e);
+		}
 
 		echo("Test finished.");
 	}

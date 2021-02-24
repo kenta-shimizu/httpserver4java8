@@ -65,13 +65,11 @@ public abstract class AbstractHttpServer implements HttpServer {
 							AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open();
 							) {
 						
-						//TODO
-						//putLog -TryBind
+						putLog(SimpleHttpServerBindLog.tryBind(addr));
 						
 						server.bind(addr);
 						
-						//TODO
-						//putLog-binded.
+						putLog(SimpleHttpServerBindLog.binded(addr));
 						
 						server.accept(null, new CompletionHandler<AsynchronousSocketChannel,Void>() {
 
@@ -80,17 +78,17 @@ public abstract class AbstractHttpServer implements HttpServer {
 								
 								server.accept(null, this);
 								
-								SocketAddress client = null;
 								SocketAddress server = null;
+								SocketAddress client = null;
 								
 								try {
-									client = channel.getRemoteAddress();
 									server = channel.getLocalAddress();
+									client = channel.getRemoteAddress();
 									
-									//TODO
-									//putLog-accepted
+									putLog(SimpleHttpServerConnectionLog.accept(server, client));
 									
 									Collection<Callable<Void>> tasks = Arrays.asList(() -> {
+										
 										try {
 											connectionWorker(channel);
 										}
@@ -130,11 +128,10 @@ public abstract class AbstractHttpServer implements HttpServer {
 									catch ( IOException giveup ) {
 									}
 									
-									//TODO
-									//putLog-closed
+									putLog(SimpleHttpServerConnectionLog.closed(server, client));
 								}
 							}
-
+							
 							@Override
 							public void failed(Throwable t, Void attachment) {
 								
@@ -152,12 +149,12 @@ public abstract class AbstractHttpServer implements HttpServer {
 							server.wait();
 						}
 						
-						//TODO
-						//server closed
 					}
 					catch ( IOException e ) {
 						putLog(e);
 					}
+					
+					putLog(SimpleHttpServerBindLog.closed(addr));
 					
 					TimeUnit.SECONDS.sleep(10L);
 				}
@@ -167,7 +164,40 @@ public abstract class AbstractHttpServer implements HttpServer {
 		});
 	}
 	
-	abstract public void connectionWorker(AsynchronousSocketChannel channel) throws InterruptedException;
+	
+	abstract protected void connectionWorker(AsynchronousSocketChannel channel) throws InterruptedException;
+	
+	/**
+	 * Returns Response-Message from Request-Message.
+	 * 
+	 * @param message
+	 * @param connectionValue
+	 * @return HttpResponseMessage
+	 * @throws InterruptedException
+	 * @throws HttpServerException
+	 */
+	abstract protected HttpResponseMessage receiveRequest(
+			HttpRequestMessage message,
+			HttpConnectionValue connectionValue)
+					throws  InterruptedException, HttpServerException;
+	
+	/**
+	 * Send Response-Message proto-type.
+	 * 
+	 * @param channel
+	 * @param request
+	 * @param response
+	 * @return {@code true} if channel close
+	 * @throws InterruptedException
+	 * @throws IOException
+	 * @throws HttpServerException
+	 */
+	abstract protected boolean sendResponse(
+			AsynchronousSocketChannel channel,
+			HttpRequestMessage request,
+			HttpResponseMessage response)
+					throws InterruptedException, IOException, HttpServerException;
+	
 	
 	@Override
 	public void close() throws IOException {

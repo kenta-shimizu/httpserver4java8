@@ -1,23 +1,30 @@
 package com.shimizukenta.httpserver;
 
+import java.util.Collections;
+
 public interface HttpResponseMessage extends HttpMessage {
 	
 	/**
 	 * Returns HTTP-Response Status-Line.
 	 * 
 	 * <p>
-	 * <strong>Not </strong> include CRLF.<br />
+	 * <strong>Not</strong> include CRLF.<br />
 	 * </p>
 	 * 
 	 * @return
 	 */
 	public String statusLine();
 	
-	/**
-	 * Returns Reference-HTTP-Request-Message.
-	 * 
-	 * @return Reference-HTTP-Request-Message
-	 */
-	public HttpRequestMessage referenceRequestMessage();
+	
+	public static HttpResponseMessage build(
+			HttpRequestMessage request,
+			HttpResponseCode responseCode) {
+		
+		return new AbstractHttpResponseMessage(
+				new HttpResponseStatusLine(request.version(), responseCode),
+				HttpHeaderListParser.of(Collections.emptyList()),
+				new byte[0]
+				) {};
+	}
 	
 }

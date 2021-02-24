@@ -13,6 +13,9 @@ public enum HttpRequestMethod {
 	TRACE("TRACE"),
 	CONNECT("CONNECT"),
 	
+	LINK("LINK"),
+	UNLINK("UNLINK"),
+	
 	;
 	
 	private String methodStr;
