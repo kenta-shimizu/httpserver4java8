@@ -2,6 +2,7 @@ package com.shimizukenta.httpserver;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -32,7 +33,10 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 	private static final byte LF = (byte)0xA;
 	
 	@Override
-	public void connectionWorker(AsynchronousSocketChannel channel) throws InterruptedException {
+	public void connectionWorker(AsynchronousSocketChannel channel) throws InterruptedException, IOException {
+		
+		final SocketAddress client = channel.getRemoteAddress();
+		final SocketAddress server = channel.getLocalAddress();
 		
 		final BlockingQueue<Byte> recvByteQueue = new LinkedBlockingQueue<>();
 		final BlockingQueue<HttpRequestMessage> reqMsgQueue = new LinkedBlockingQueue<>();
@@ -168,18 +172,20 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 						for ( ;; ) {
 							
 							HttpRequestMessage req = reqMsgQueue.take();
+							
+							putLog(req);
+							
 							HttpResponseMessage res = receiveRequest(req, connectionValue, config);
-							
-							System.out.println(req);
-							System.out.println();
-							System.out.println(res);
-							System.out.println();
-							
 							
 							if ( res == null ) {
 								break;
 							}
-							if ( ! sendResponse(channel, req, res) ) {
+							
+							boolean f = sendResponse(channel, req, res);
+							
+							putLog(res);
+							
+							if ( ! f ) {
 								break;
 							}
 						}

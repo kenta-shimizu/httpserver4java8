@@ -50,12 +50,15 @@ public abstract class AbstractJsonApi extends AbstractHttpApi implements JsonApi
 		
 		final List<HttpHeader> headers = new ArrayList<>();
 		
+		headers.add(date());
 		headers.add(header("Server", serverConfig.serverName()));
+		headers.add(header("Last-Modified", nowZonedDateTime()));
 		
 		encResult.contentEncoding()
 		.map(x -> contentEncoding(x))
 		.ifPresent(headers::add);
 		
+		headers.add(acceptRanges());
 		headers.add(contentLength(encResult.getBytes()));
 		headers.add(header("Content-Type", "application/json"));
 		headers.addAll(connectionKeeyAlive(request, connectionValue));

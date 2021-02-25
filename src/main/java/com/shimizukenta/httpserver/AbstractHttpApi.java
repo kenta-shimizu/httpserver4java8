@@ -1,5 +1,8 @@
 package com.shimizukenta.httpserver;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +22,20 @@ public abstract class AbstractHttpApi implements HttpApi {
 		};
 	}
 	
+	private static final ZoneId gmtZoneId = ZoneId.of("GMT");
+	
+	protected static final String nowZonedDateTime() {
+		return ZonedDateTime.now(gmtZoneId).format(DateTimeFormatter.RFC_1123_DATE_TIME);
+	}
+	
+	protected static HttpHeader date() {
+		return header("Date", nowZonedDateTime());
+	}
+	
+	protected static HttpHeader acceptRanges() {
+		return header("Accept-Ranges", "bytes");
+	}
+	
 	protected static HttpHeader contentLength(byte[] bs) {
 		return header("Content-Length", String.valueOf(bs.length));
 	}
@@ -28,7 +45,7 @@ public abstract class AbstractHttpApi implements HttpApi {
 	}
 	
 	private static final HttpHeader connectionCloseHeader = header("Connection", "close");
-	private static final HttpHeader connectionKeepAliveHeader = header("Connection", "keep-alive");
+	private static final HttpHeader connectionKeepAliveHeader = header("Connection", "Keep-Alive");
 	
 	protected static List<HttpHeader> connectionKeeyAlive(
 			HttpRequestMessage request,

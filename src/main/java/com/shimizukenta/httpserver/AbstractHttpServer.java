@@ -92,6 +92,9 @@ public abstract class AbstractHttpServer implements HttpServer {
 										try {
 											connectionWorker(channel);
 										}
+										catch ( IOException e ) {
+											putLog(e);
+										}
 										catch ( InterruptedException ignore ) {
 										}
 										return null;
@@ -165,7 +168,8 @@ public abstract class AbstractHttpServer implements HttpServer {
 	}
 	
 	
-	abstract protected void connectionWorker(AsynchronousSocketChannel channel) throws InterruptedException;
+	abstract protected void connectionWorker(AsynchronousSocketChannel channel)
+			throws InterruptedException, IOException;
 	
 	/**
 	 * Returns Response-Message from Request-Message.
@@ -258,6 +262,22 @@ public abstract class AbstractHttpServer implements HttpServer {
 	protected void putLog(HttpServerLog log) {
 		logListeners.forEach(l -> {
 			l.received(log);
+		});
+	}
+	
+	protected void putLog(HttpRequestMessage request) {
+		
+		putLog(new AbstractHttpRequestMessageLog(request) {
+			
+			private static final long serialVersionUID = -5745877813910058368L;
+		});
+	}
+	
+	protected void putLog(HttpResponseMessage response) {
+		
+		putLog(new AbstractHttpResponseMessageLog(response) {
+			
+			private static final long serialVersionUID = 6478174154016942721L;
 		});
 	}
 	

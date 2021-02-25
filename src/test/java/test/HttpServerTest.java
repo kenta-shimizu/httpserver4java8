@@ -2,16 +2,14 @@ package test;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.shimizukenta.httpserver.AbstractHttpApiServer;
 import com.shimizukenta.httpserver.AbstractHttpApiServerConfig;
-import com.shimizukenta.httpserver.HttpApi;
 import com.shimizukenta.httpserver.HttpApiServer;
-import com.shimizukenta.httpserver.HttpConnectionValue;
 import com.shimizukenta.httpserver.HttpRequestMessage;
-import com.shimizukenta.httpserver.HttpResponseCode;
-import com.shimizukenta.httpserver.HttpResponseMessage;
-import com.shimizukenta.httpserver.HttpServerConfig;
 import com.shimizukenta.httpserver.HttpServerException;
 import com.shimizukenta.httpserver.jsonapi.AbstractJsonApi;
 
@@ -25,22 +23,15 @@ public class HttpServerTest {
 		
 		echo("Test start");
 		
+		{
+			ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of("GMT"));
+			echo(zdt.format(DateTimeFormatter.RFC_1123_DATE_TIME));
+		}
+		
 		AbstractHttpApiServerConfig config = new AbstractHttpApiServerConfig() {
 			
 			private static final long serialVersionUID = 6047203276687113314L;
 		};
-		
-		
-//		try {
-//			List<HttpEncoding> encs = HttpEncoding.fromFieldValue("gzip;q=0.4, deflate");
-//			
-//			encs.forEach(enc -> {
-//				echo(enc);
-//			});
-//		}
-//		catch (HttpServerMessageHeaderParseException e) {
-//			echo(e);
-//		}
 		
 		
 		config.addServerAddress(new InetSocketAddress("127.0.0.1", 8080));
