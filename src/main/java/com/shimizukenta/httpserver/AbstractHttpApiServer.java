@@ -21,9 +21,9 @@ import java.util.concurrent.TimeoutException;
 
 public abstract class AbstractHttpApiServer extends AbstractHttpServer implements HttpApiServer {
 	
-	private final AbstractHttpServerConfig config;
+	private final AbstractHttpApiServerConfig config;
 	
-	public AbstractHttpApiServer(AbstractHttpServerConfig config) {
+	public AbstractHttpApiServer(AbstractHttpApiServerConfig config) {
 		super(config);
 		this.config = config;
 	}
@@ -168,7 +168,7 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 						for ( ;; ) {
 							
 							HttpRequestMessage req = reqMsgQueue.take();
-							HttpResponseMessage res = receiveRequest(req, connectionValue);
+							HttpResponseMessage res = receiveRequest(req, connectionValue, config);
 							
 							System.out.println(req);
 							System.out.println();
@@ -232,7 +232,10 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 				body[i] = recvQueue.take();
 			}
 			
-			return new AbstractHttpRequestBytesMessage(requestLine, headers, body) {};
+			return new AbstractHttpRequestBytesMessage(requestLine, headers, body) {
+				
+				private static final long serialVersionUID = -7571083631584881313L;
+			};
 		}
 	}
 	
@@ -345,16 +348,17 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 	@Override
 	protected HttpResponseMessage receiveRequest(
 			HttpRequestMessage request,
-			HttpConnectionValue connectionValue)
+			HttpConnectionValue connectionValue,
+			HttpServerConfig serverConfig)
 					throws InterruptedException, HttpServerException {
 		
 		for ( HttpApi api : apis ) {
 			if ( api.accept(request) ) {
-				return api.receiveRequest(request, connectionValue);
+				return api.receiveRequest(request, connectionValue, serverConfig);
 			}
 		}
 		
-		return null;
+		return HttpResponseMessage.build(request, HttpResponseCode.BadRequest);
 	}
 	
 	@Override

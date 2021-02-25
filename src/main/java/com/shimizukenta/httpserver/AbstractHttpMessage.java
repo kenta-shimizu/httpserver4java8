@@ -1,8 +1,11 @@
 package com.shimizukenta.httpserver;
 
+import java.io.Serializable;
 import java.util.List;
 
-public abstract class AbstractHttpMessage implements HttpMessage {
+public abstract class AbstractHttpMessage implements HttpMessage, Serializable {
+	
+	private static final long serialVersionUID = 3513567772758009667L;
 	
 	private final HttpHeaderListParser headerList;
 	

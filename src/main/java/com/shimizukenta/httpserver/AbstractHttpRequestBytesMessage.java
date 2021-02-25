@@ -7,6 +7,8 @@ import java.util.Arrays;
 
 public abstract class AbstractHttpRequestBytesMessage extends AbstractHttpRequestMessage {
 	
+	private static final long serialVersionUID = -4666937793555047905L;
+	
 	private final byte[] body;
 	private byte[] cacheBytes;
 	

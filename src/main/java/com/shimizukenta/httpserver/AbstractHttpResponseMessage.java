@@ -7,6 +7,8 @@ import java.util.Arrays;
 
 public abstract class AbstractHttpResponseMessage extends AbstractHttpMessage implements HttpResponseMessage {
 	
+	private static final long serialVersionUID = -769739754437449724L;
+	
 	private final HttpResponseStatusLine statusLine;
 	private final byte[] body;
 	

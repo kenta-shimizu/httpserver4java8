@@ -1,5 +1,11 @@
 package com.shimizukenta.httpserver;
 
+/**
+ * This interface is testing Request Acceptable and building Response.
+ * 
+ * @author kenta-shimizu
+ *
+ */
 public interface HttpApi {
 	
 	/**
@@ -15,13 +21,15 @@ public interface HttpApi {
 	 * 
 	 * @param request
 	 * @param connectionValue
+	 * @param serverConfig
 	 * @return Response-Message
 	 * @throws InterruptedException
 	 * @throws HttpServerException
 	 */
 	public HttpResponseMessage receiveRequest(
 			HttpRequestMessage request,
-			HttpConnectionValue connectionValue)
+			HttpConnectionValue connectionValue,
+			HttpServerConfig serverConfig)
 					throws InterruptedException, HttpServerException;
 	
 }

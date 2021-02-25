@@ -2,6 +2,8 @@ package com.shimizukenta.httpserver;
 
 public abstract class AbstractHttpRequestMessage extends AbstractHttpMessage implements HttpRequestMessage {
 	
+	private static final long serialVersionUID = -4808104067492284482L;
+	
 	private final HttpRequestLineParser requestLine;
 	
 	private HttpRequestMethod cacheMethod;

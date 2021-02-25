@@ -1,37 +1,13 @@
 package com.shimizukenta.httpserver;
 
-import java.util.Objects;
+import java.io.Serializable;
 
-public abstract class AbstractHttpApiConfig {
+public abstract class AbstractHttpApiConfig implements Serializable {
 	
-	private static final String defaultServerName = "HTTP-SERVER-NAME";
-	
-	private String serverName;
+	private static final long serialVersionUID = -6470184623771342106L;
 	
 	public AbstractHttpApiConfig() {
-		this.serverName = defaultServerName;
-	}
-	
-	/**
-	 * Server-Name getter.
-	 * 
-	 * @return Server-Name
-	 */
-	public String serverName() {
-		synchronized ( this ) {
-			return this.serverName;
-		}
-	}
-	
-	/**
-	 * Server-Name setter.
-	 * 
-	 * @param serverName
-	 */
-	public void serverName(CharSequence serverName) {
-		synchronized ( this ) {
-			this.serverName = Objects.requireNonNull(serverName).toString();
-		}
+		/* Nothing */
 	}
 	
 }

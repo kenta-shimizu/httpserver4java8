@@ -4,14 +4,16 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import com.shimizukenta.httpserver.AbstractHttpApiServer;
-import com.shimizukenta.httpserver.AbstractHttpServerConfig;
+import com.shimizukenta.httpserver.AbstractHttpApiServerConfig;
 import com.shimizukenta.httpserver.HttpApi;
 import com.shimizukenta.httpserver.HttpApiServer;
 import com.shimizukenta.httpserver.HttpConnectionValue;
 import com.shimizukenta.httpserver.HttpRequestMessage;
 import com.shimizukenta.httpserver.HttpResponseCode;
 import com.shimizukenta.httpserver.HttpResponseMessage;
+import com.shimizukenta.httpserver.HttpServerConfig;
 import com.shimizukenta.httpserver.HttpServerException;
+import com.shimizukenta.httpserver.jsonapi.AbstractJsonApi;
 
 public class HttpServerTest {
 
@@ -23,7 +25,7 @@ public class HttpServerTest {
 		
 		echo("Test start");
 		
-		AbstractHttpServerConfig config = new AbstractHttpServerConfig() {
+		AbstractHttpApiServerConfig config = new AbstractHttpApiServerConfig() {
 			
 			private static final long serialVersionUID = 6047203276687113314L;
 		};
@@ -47,20 +49,16 @@ public class HttpServerTest {
 				HttpApiServer server = new AbstractHttpApiServer(config) {};
 				) {
 			
-			server.addApi(new HttpApi() {
-				
-				@Override
-				public boolean accept(HttpRequestMessage request) {
-					return true;
-				}
+			server.addApi(new AbstractJsonApi() {
 
 				@Override
-				public HttpResponseMessage receiveRequest(
-						HttpRequestMessage request,
-						HttpConnectionValue connectionValue)
-								throws InterruptedException, HttpServerException {
-					
-					return HttpResponseMessage.build(request, HttpResponseCode.BadRequest);
+				public boolean accept(HttpRequestMessage request) {
+					return request.uri().startsWith("/json");
+				}
+				
+				@Override
+				public String buildJson(HttpRequestMessage request) throws InterruptedException, HttpServerException {
+					return "{\"success\":true}";
 				}
 			});
 			

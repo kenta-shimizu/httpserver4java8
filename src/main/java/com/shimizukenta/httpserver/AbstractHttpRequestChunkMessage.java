@@ -9,6 +9,8 @@ import java.util.List;
 
 public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpRequestMessage {
 	
+	private static final long serialVersionUID = -5824443783422568323L;
+	
 	private final byte[] chunkBytes;
 	private final byte[] body;
 	private final List<HttpHeader> trailers;
@@ -233,7 +235,10 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 					headerList,
 					chunks,
 					body,
-					trailerParser.headers()) {};
+					trailerParser.headers()) {
+				
+						private static final long serialVersionUID = 6295457468522351391L;
+			};
 		}
 		catch ( IOException e ) {
 			throw new HttpServerRequestChunkMessageParseException(e);

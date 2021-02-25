@@ -172,13 +172,15 @@ public abstract class AbstractHttpServer implements HttpServer {
 	 * 
 	 * @param message
 	 * @param connectionValue
+	 * @param serverConfig
 	 * @return HttpResponseMessage
 	 * @throws InterruptedException
 	 * @throws HttpServerException
 	 */
 	abstract protected HttpResponseMessage receiveRequest(
 			HttpRequestMessage message,
-			HttpConnectionValue connectionValue)
+			HttpConnectionValue connectionValue,
+			HttpServerConfig serverConfig)
 					throws  InterruptedException, HttpServerException;
 	
 	/**
@@ -270,7 +272,7 @@ public abstract class AbstractHttpServer implements HttpServer {
 		return this.execServ;
 	}
 	
-	protected AbstractHttpServerConfig config() {
+	protected HttpServerConfig config() {
 		return config;
 	}
 	

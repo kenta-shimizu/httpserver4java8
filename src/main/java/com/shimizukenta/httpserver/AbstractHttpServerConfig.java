@@ -7,29 +7,36 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public abstract class AbstractHttpServerConfig implements Serializable {
+/**
+ * This abstract class is config-values of HttpServer instance.
+ * 
+ * @author kenta-shimizu
+ *
+ */
+public abstract class AbstractHttpServerConfig implements Serializable, HttpServerConfig {
 	
 	private static final long serialVersionUID = -438846997741190044L;
 	
+	private static final String defaultServerName = "HTTP-SERVER-FOR-JAVA8-1.0.0";
 	private static final long defaultConnectionTimeout = 180;
 	
 	private final Set<SocketAddress> serverAddresses = new CopyOnWriteArraySet<>();
 	private long connectionTimeout;
+	
+	private String serverName;
+	private Set<String> acceptHostNames = new CopyOnWriteArraySet<>();
 	
 	private long keepAliveTimeout;
 	private int keepAliveMax;
 	
 	public AbstractHttpServerConfig() {
 		this.connectionTimeout = defaultConnectionTimeout;
+		this.serverName = defaultServerName;
 		this.keepAliveTimeout = 5L;
 		this.keepAliveMax = 100;
 	}
 	
-	/**
-	 * Returns Server-Addresses.
-	 * 
-	 * @return Server-Addresses
-	 */
+	@Override
 	public Set<SocketAddress> serverAddresses() {
 		return Collections.unmodifiableSet(serverAddresses);
 	}
@@ -38,7 +45,7 @@ public abstract class AbstractHttpServerConfig implements Serializable {
 	 * Add Server-Address.
 	 * 
 	 * <p>
-	 * Not accept {@code null}.<br />
+	 * <strong>Not</strong> accept {@code null}.<br />
 	 * </p>
 	 * 
 	 * @param address
@@ -52,7 +59,7 @@ public abstract class AbstractHttpServerConfig implements Serializable {
 	 * Remove Server-Address.
 	 * 
 	 * <p>
-	 * Not accept {@code null}.<br />
+	 * <string>Not</strong> accept {@code null}.<br />
 	 * </p>
 	 * 
 	 * @param address
@@ -62,11 +69,7 @@ public abstract class AbstractHttpServerConfig implements Serializable {
 		return serverAddresses.remove(Objects.requireNonNull(address));
 	}
 	
-	/**
-	 * Return Connection-Timeout seconds.
-	 * 
-	 * @return Connection-Timeout seconds
-	 */
+	@Override
 	public long connectionTimeout() {
 		synchronized ( this ) {
 			return this.connectionTimeout;
@@ -84,11 +87,62 @@ public abstract class AbstractHttpServerConfig implements Serializable {
 		}
 	}
 	
+	@Override
+	public String serverName() {
+		synchronized ( this ) {
+			return this.serverName;
+		}
+	}
+	
 	/**
-	 * Keep-Alive timeout getter.
+	 * Server-Name setter.
 	 * 
-	 * @return Keep-Alive timeout
+	 * <p>
+	 * <strong>Not</strong> accept {@code null}.<br />
+	 * </p>
+	 * 
+	 * @param cs
 	 */
+	public void serverName(CharSequence cs) {
+		synchronized ( this ) {
+			this.serverName = Objects.requireNonNull(cs).toString();
+		}
+	}
+	
+	@Override
+	public Set<String> acceptHostNames() {
+		return Collections.unmodifiableSet(this.acceptHostNames);
+	}
+	
+	/**
+	 * Returns {@code true} if add Accept-Host-Name success.
+	 * 
+	 * <p>
+	 * <string>Not</strong> accept {@code null}.<br />
+	 * </p>
+	 * 
+	 * @param cs
+	 * @return {@code true} if add Accept-Host-Name success
+	 */
+	public boolean addAcceptHostName(CharSequence cs) {
+		return this.acceptHostNames.add(Objects.requireNonNull(cs).toString());
+	}
+	
+	/**
+	 * Returns {@code true} if remove Accept-Host-Name success.
+	 * 
+	 * <p>
+	 * <string>Not</strong> accept {@code null}.<br />
+	 * </p>
+	 * 
+	 * @param cs
+	 * @return {@code true} if remove Accept-Host-Name success
+	 */
+	public boolean removeAcceptHostName(CharSequence cs) {
+		return this.acceptHostNames.remove(Objects.requireNonNull(cs).toString());
+	}
+	
+	@Override
 	public long keepAliveTimeout() {
 		synchronized ( this ) {
 			return this.keepAliveTimeout;
@@ -106,11 +160,7 @@ public abstract class AbstractHttpServerConfig implements Serializable {
 		}
 	}
 	
-	/**
-	 * Keep-Alive max getter.
-	 * 
-	 * @return Keep-Alive max
-	 */
+	@Override
 	public int keepAliveMax() {
 		synchronized ( this ) {
 			return this.keepAliveMax;
@@ -127,4 +177,5 @@ public abstract class AbstractHttpServerConfig implements Serializable {
 			this.keepAliveMax = max;
 		}
 	}
+	
 }

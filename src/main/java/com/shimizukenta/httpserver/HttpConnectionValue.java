@@ -22,7 +22,7 @@ public class HttpConnectionValue {
 		}
 	}
 	
-	public int dcreateKeepAliveMax() {
+	public int decreaseKeepAliveMax() {
 		synchronized ( this ) {
 			-- this.keepAliveMax;
 			return this.keepAliveMax;

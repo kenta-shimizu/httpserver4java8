@@ -24,7 +24,10 @@ public interface HttpResponseMessage extends HttpMessage {
 				new HttpResponseStatusLine(request.version(), responseCode),
 				HttpHeaderListParser.of(Collections.emptyList()),
 				new byte[0]
-				) {};
+				) {
+			
+					private static final long serialVersionUID = 2972199851752084860L;
+		};
 	}
 	
 }

@@ -1,30 +1,31 @@
 package com.shimizukenta.httpserver.generalfileapi;
 
 import com.shimizukenta.httpserver.AbstractHttpApi;
-import com.shimizukenta.httpserver.AbstractHttpApiConfig;
 import com.shimizukenta.httpserver.HttpConnectionValue;
 import com.shimizukenta.httpserver.HttpRequestMessage;
 import com.shimizukenta.httpserver.HttpResponseMessage;
+import com.shimizukenta.httpserver.HttpServerConfig;
 import com.shimizukenta.httpserver.HttpServerException;
 
-public abstract class AbstractGeneralFileHttpApi extends AbstractHttpApi implements GeneralFileHttpApi {
+public abstract class AbstractGeneralFileApi extends AbstractHttpApi implements GeneralFileApi {
 	
-	private final AbstractGeneralFileHttpApiConfig config;
+	private final AbstractGeneralFileApiConfig config;
 	
-	public AbstractGeneralFileHttpApi(AbstractGeneralFileHttpApiConfig config) {
+	public AbstractGeneralFileApi(AbstractGeneralFileApiConfig config) {
 		super(config);
 		this.config = config;
 	}
 
 	@Override
 	public boolean accept(HttpRequestMessage request) {
-		return true;
+		return request.uri().startsWith("/");
 	}
 
 	@Override
 	public HttpResponseMessage receiveRequest(
 			HttpRequestMessage request,
-			HttpConnectionValue connectionValue)
+			HttpConnectionValue connectionValue,
+			HttpServerConfig serverConfig)
 					throws InterruptedException, HttpServerException {
 		
 		// TODO Auto-generated method stub

@@ -1,19 +1,66 @@
 package com.shimizukenta.httpserver;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public abstract class AbstractHttpApi implements HttpApi {
 	
-	private final AbstractHttpApiConfig config;
+//	private AbstractHttpApiConfig config;
 	
 	public AbstractHttpApi(AbstractHttpApiConfig config) {
-		this.config = config;
+//		this.config = config;
 	}
 	
-	protected HttpHeader serverNameHeader() {
-		
-		return new AbstractHttpHeader("Server", config.serverName()) {
+	protected static HttpHeader header(CharSequence name, CharSequence value) {
+		return new AbstractHttpHeader(name, value) {
 			
-			private static final long serialVersionUID = -5069387462307878250L;
+			private static final long serialVersionUID = -4563258496785621860L;
 		};
 	}
 	
+	protected static HttpHeader contentLength(byte[] bs) {
+		return header("Content-Length", String.valueOf(bs.length));
+	}
+	
+	protected static HttpHeader contentEncoding(HttpEncoding enc) {
+		return header("Content-encoding", enc.toString());
+	}
+	
+	private static final HttpHeader connectionCloseHeader = header("Connection", "close");
+	private static final HttpHeader connectionKeepAliveHeader = header("Connection", "keep-alive");
+	
+	protected static List<HttpHeader> connectionKeeyAlive(
+			HttpRequestMessage request,
+			HttpConnectionValue connectionValue) {
+		
+		switch ( request.version() ) {
+		case HTTP_1_1: {
+			
+			if ( ! request.headerListParser().isConnectionClose() ) {
+				int max = connectionValue.decreaseKeepAliveMax();
+				if ( max > 0 ) {
+					return Arrays.asList(
+							connectionKeepAliveHeader,
+							header(
+									"Keep-Alive",
+									"timeout="
+									+ connectionValue.keepAliveTimeout()
+									+ ", max="
+									+ max
+									)
+							);
+				}
+			}
+			
+			return Collections.singletonList(connectionCloseHeader);
+			/* break; */
+		}
+		case HTTP_2_0:
+		case HTTP_1_0:
+		default: {
+			return Collections.emptyList();
+		}
+		}
+	}
 }

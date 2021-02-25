@@ -41,15 +41,23 @@ public final class HttpRequestQuery {
 		map.forEach(action);
 	}
 	
+	private static final  HttpRequestQuery emptyQuery = new HttpRequestQuery(Collections.emptyMap());
+	
 	public static HttpRequestQuery from(CharSequence query) throws HttpServerRequestMessageParseException {
 		
 		if ( query == null ) {
 			throw new HttpServerRequestMessageParseException("require not null");
 		}
 		
+		String queryStr = query.toString().trim();
+		
+		if ( queryStr.isEmpty() ) {
+			return emptyQuery;
+		}
+		
 		final Map<String, List<String>> map = new HashMap<>();
 		
-		String[] ss = query.toString().split("&");
+		String[] ss = queryStr.split("&");
 		for ( String s : ss ) {
 			String[] pp = s.split("=", 2);
 			
@@ -65,4 +73,5 @@ public final class HttpRequestQuery {
 		
 		return new HttpRequestQuery(map);
 	}
+	
 }

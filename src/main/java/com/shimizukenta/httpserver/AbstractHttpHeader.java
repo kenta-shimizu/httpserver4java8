@@ -1,6 +1,7 @@
 package com.shimizukenta.httpserver;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public abstract class AbstractHttpHeader implements HttpHeader, Serializable {
 	
@@ -13,9 +14,9 @@ public abstract class AbstractHttpHeader implements HttpHeader, Serializable {
 	private final String value;
 	private String line;
 	
-	public AbstractHttpHeader(String name, String value) {
-		this.name = name;
-		this.value = value;
+	public AbstractHttpHeader(CharSequence name, CharSequence value) {
+		this.name = Objects.requireNonNull(name).toString();
+		this.value = Objects.requireNonNull(value).toString();
 		this.line = null;
 	}
 	
