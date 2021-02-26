@@ -5,32 +5,40 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpRequestMessage {
 	
 	private static final long serialVersionUID = -5824443783422568323L;
 	
-	private final byte[] chunkBytes;
-	private final byte[] body;
+	private final List<byte[]> chunkBytes;
+	private final List<byte[]> body;
 	private final List<HttpHeader> trailers;
 	
-	private byte[] cacheBytes;
+	private List<byte[]> cacheBytes;
 	private HttpHeaderListParser joinHeaderList;
 	private String cacheToString;
 	
 	private AbstractHttpRequestChunkMessage(
 			HttpRequestLineParser requestLine,
 			HttpHeaderListParser headerList,
-			byte[] chunkBytes,
-			byte[] body,
+			List<byte[]> chunkBytes,
+			List<byte[]> body,
 			List<HttpHeader> trailers
 			) {
 		
 		super(requestLine, headerList);
 		
-		this.chunkBytes = Arrays.copyOf(chunkBytes, chunkBytes.length);
-		this.body = Arrays.copyOf(body, body.length);
+		this.chunkBytes = chunkBytes.stream()
+				.map(bs -> Arrays.copyOf(bs, bs.length))
+				.collect(Collectors.toList());
+		
+		this.body = body.stream()
+				.map(bs -> Arrays.copyOf(bs, bs.length))
+				.collect(Collectors.toList());
+		
 		this.trailers = new ArrayList<>(trailers);
 		
 		this.cacheBytes = null;
@@ -39,16 +47,18 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 	}
 	
 	@Override
-	public byte[] body() {
-		return Arrays.copyOf(body, body.length);
+	public List<byte[]> body() {
+		return Collections.unmodifiableList(this.body);
 	}
 	
 	@Override
-	public byte[] getBytes() {
+	public List<byte[]> getBytes() {
 		
 		synchronized ( this ) {
 			
 			if ( this.cacheBytes == null ) {
+				
+				final List<byte[]> ll = new ArrayList<>();
 				
 				try (
 						ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -64,22 +74,17 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 					
 					baos.write(CrLfBytes);
 					
-					baos.write(chunkBytes);
-					
-					this.cacheBytes = baos.toByteArray();
+					ll.add(baos.toByteArray());
 				}
 				catch ( IOException giveup ) {
 				}
+				
+				ll.addAll(this.chunkBytes);
+				
+				this.cacheBytes = Collections.unmodifiableList(ll);
 			}
 			
-			if ( this.cacheBytes == null ) {
-				
-				return new byte[0];
-				
-			} else {
-				
-				return Arrays.copyOf(this.cacheBytes, this.cacheBytes.length);
-			}
+			return this.cacheBytes;
 		}
 	}
 	
@@ -146,10 +151,12 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 	public static AbstractHttpRequestChunkMessage build(
 			HttpRequestLineParser requestLine,
 			HttpHeaderListParser headerList,
-			byte[] chunks
+			List<byte[]> chunks
 			) throws HttpServerRequestMessageParseException {
 		
 		final InnerQueue q = new InnerQueue(chunks);
+		
+		final List<byte[]> bodys = new ArrayList<>();
 		
 		try (
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -190,6 +197,9 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 						baos.write(q.take());
 					}
 					
+					bodys.add(baos.toByteArray());
+					baos.reset();
+					
 					if ( q.take() != CR ) {
 						throw new HttpServerRequestChunkMessageParseException();
 					}
@@ -197,12 +207,9 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 					if ( q.take() != LF ) {
 						throw new HttpServerRequestChunkMessageParseException();
 					}
+					
 				}
 			}
-			
-			final byte[] body = baos.toByteArray();
-			
-			baos.reset();
 			
 			final List<String> trailers = new ArrayList<>();
 			
@@ -234,7 +241,7 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 					requestLine,
 					headerList,
 					chunks,
-					body,
+					bodys,
 					trailerParser.headers()) {
 				
 						private static final long serialVersionUID = 6295457468522351391L;
@@ -247,23 +254,54 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 	
 	private static class InnerQueue {
 		
-		private final byte[] bs;
+		private final List<byte[]> ll;
 		private int i;
 		private int m;
+		private int ix;
+		private final int mx;
 		
-		private InnerQueue(byte[] bs) {
+		private InnerQueue(List<byte[]> ll) {
+			
+			this.ll = ll.stream()
+					.filter(bs -> bs.length > 0)
+					.collect(Collectors.toList());
+			
 			this.i = -1;
-			this.m = bs.length;
-			this.bs = Arrays.copyOf(bs, this.m);
+			this.ix = 0;
+			this.mx = ll.size();
+			
+			if ( mx > 0 ) {
+				m = ll.get(ix).length;
+			} else {
+				m = 0;
+			}
 		}
 		
 		public byte take() throws HttpServerRequestChunkMessageParseException {
+			
 			i += 1;
+			
 			if ( i < m ) {
-				return bs[i];
+				
+				return (ll.get(ix))[i];
+				
 			} else {
-				throw new HttpServerRequestChunkMessageParseException();
+				
+				ix += 1;
+				
+				if ( ix < mx ) {
+					
+					i = 0;
+					m = ll.get(ix).length;
+					
+					return (ll.get(ix))[i];
+					
+				} else {
+					
+					throw new HttpServerRequestChunkMessageParseException();
+				}
 			}
 		}
+		
 	}
 }

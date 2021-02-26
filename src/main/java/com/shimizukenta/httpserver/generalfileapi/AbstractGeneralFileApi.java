@@ -1,9 +1,23 @@
 package com.shimizukenta.httpserver.generalfileapi;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.shimizukenta.httpserver.AbstractHttpApi;
+import com.shimizukenta.httpserver.AbstractHttpResponseMessage;
 import com.shimizukenta.httpserver.HttpConnectionValue;
+import com.shimizukenta.httpserver.HttpContentEncoder;
+import com.shimizukenta.httpserver.HttpContentType;
+import com.shimizukenta.httpserver.HttpEncodingResult;
+import com.shimizukenta.httpserver.HttpHeader;
+import com.shimizukenta.httpserver.HttpHeaderListParser;
 import com.shimizukenta.httpserver.HttpRequestMessage;
+import com.shimizukenta.httpserver.HttpResponseCode;
 import com.shimizukenta.httpserver.HttpResponseMessage;
+import com.shimizukenta.httpserver.HttpResponseStatusLine;
 import com.shimizukenta.httpserver.HttpServerConfig;
 import com.shimizukenta.httpserver.HttpServerException;
 
@@ -18,7 +32,16 @@ public abstract class AbstractGeneralFileApi extends AbstractHttpApi implements 
 
 	@Override
 	public boolean accept(HttpRequestMessage request) {
-		return request.uri().startsWith("/");
+		switch (request.method()) {
+		case HEAD:
+		case GET: {
+			return request.uri().startsWith("/");
+			/* break; */
+		}
+		default: {
+			return false;
+		}
+		}
 	}
 
 	@Override
@@ -28,9 +51,86 @@ public abstract class AbstractGeneralFileApi extends AbstractHttpApi implements 
 			HttpServerConfig serverConfig)
 					throws InterruptedException, HttpServerException {
 		
-		// TODO Auto-generated method stub
+		if ( ! config.rootPath().isPresent() ) {
+			return HttpResponseMessage.build(request, HttpResponseCode.InternalServerError);
+		}
+		
+		String absPath = request.absPath();
+		
+		if ( absPath.contains("..") ) {
+			return HttpResponseMessage.build(request, HttpResponseCode.BadRequest);
+		}
+		
+		Path filepath = getFilePath(absPath);
+		
+		if ( filepath == null ) {
+			return HttpResponseMessage.build(request, HttpResponseCode.NotFound);
+		}
+		
+//		File file = filepath.toFile();
+//		
+//		file.lastModified();
+		
+		try {
+			byte[] body = Files.readAllBytes(filepath);
+			
+			final HttpEncodingResult encResult = HttpContentEncoder.encode(request, body);
+			
+			final HttpResponseStatusLine statusLine = new HttpResponseStatusLine(
+					request.version(),
+					HttpResponseCode.OK);
+			
+			final List<HttpHeader> headers = new ArrayList<>();
+			
+			headers.add(date());
+			headers.add(server(serverConfig));
+			
+//			headers.add(header("Last-Modified", nowZonedDateTime()));
+			
+			encResult.contentEncoding()
+			.map(x -> contentEncoding(x))
+			.ifPresent(headers::add);
+			
+			headers.add(acceptRanges());
+			headers.add(contentLength(encResult.getBytes()));
+			headers.add(contentType(HttpContentType.fromPath(filepath)));
+			headers.addAll(connectionKeeyAlive(request, connectionValue));
+			
+			return new AbstractHttpResponseMessage(
+					statusLine,
+					HttpHeaderListParser.of(headers),
+					encResult.getBytes()) {
+				
+						private static final long serialVersionUID = -7641998153414521198L;
+			};
+
+		}
+		catch ( IOException e ) {
+			return HttpResponseMessage.build(request, HttpResponseCode.NotAllowed);
+		}
+	}
+	
+	private Path getFilePath(String absPath) {
+		
+		Path p = config.rootPath().map(x -> x.resolve("." + absPath)).get().normalize();
+		
+		if ( Files.isRegularFile(p) ) {
+			
+			return p;
+			
+		} else if ( Files.isDirectory(p) ) {
+			
+			for ( String s : config.directoryIndexes() ) {
+				
+				Path pp = p.resolve(s);
+				
+				if ( Files.isRegularFile(pp) ) {
+					return pp.normalize();
+				}
+			}
+		}
 		
 		return null;
 	}
-
+	
 }

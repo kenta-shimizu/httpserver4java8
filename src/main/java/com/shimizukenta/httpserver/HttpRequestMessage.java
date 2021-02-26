@@ -21,6 +21,13 @@ public interface HttpRequestMessage extends HttpMessage {
 	public String uri();
 	
 	/**
+	 * Returns Absolute-Path from URI.
+	 * 
+	 * @return Absolute-Path
+	 */
+	public String absPath();
+	
+	/**
 	 * Returns Method.
 	 * 
 	 * @return Method

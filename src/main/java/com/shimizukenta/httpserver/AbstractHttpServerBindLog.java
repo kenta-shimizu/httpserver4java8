@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-public class AbstractHttpServerBindLog extends AbstractHttpServerLog implements HttpServerBindLog {
+public abstract class AbstractHttpServerBindLog extends AbstractHttpServerLog implements HttpServerBindLog {
 	
 	private static final long serialVersionUID = -7390341348613331893L;
 	
@@ -26,7 +26,11 @@ public class AbstractHttpServerBindLog extends AbstractHttpServerLog implements 
 	
 	@Override
 	public Optional<String> optionalValueString() {
-		return Optional.of("{\"socketAddress\":\"" + Objects.toString(bindSocketAddress) + "\",\"binding\":" + binding + "}");
+		return Optional.of(
+				"{\"socketAddress\":\""
+		+ Objects.toString(bindSocketAddress)
+		+ "\",\"binding\":"
+		+ binding + "}");
 	}
 	
 	@Override

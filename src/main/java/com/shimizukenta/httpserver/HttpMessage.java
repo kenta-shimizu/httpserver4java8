@@ -44,13 +44,13 @@ public interface HttpMessage {
 	 * 
 	 * @return body-bytes
 	 */
-	public byte[] body();
+	public List<byte[]> body();
 	
 	/**
 	 * Returns Message bytes-data.
 	 * 
 	 * @return Message bytes-data.
 	 */
-	public byte[] getBytes();
+	public List<byte[]> getBytes();
 	
 }

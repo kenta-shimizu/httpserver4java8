@@ -3,7 +3,7 @@ package com.shimizukenta.httpserver;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-public abstract class AbstractHttpRequestMessageLog extends AbstractHttpServerLog implements HttpRequestMessageLog {
+public abstract class AbstractHttpServerRequestMessageLog extends AbstractHttpServerLog implements HttpServerRequestMessageLog {
 	
 	private static final long serialVersionUID = 8267980988164063088L;
 	
@@ -11,12 +11,12 @@ public abstract class AbstractHttpRequestMessageLog extends AbstractHttpServerLo
 	
 	private final HttpRequestMessage request;
 	
-	public AbstractHttpRequestMessageLog(LocalDateTime timestamp, HttpRequestMessage request) {
+	public AbstractHttpServerRequestMessageLog(LocalDateTime timestamp, HttpRequestMessage request) {
 		super(commonSubject, timestamp, request);
 		this.request = request;
 	}
 	
-	public AbstractHttpRequestMessageLog(HttpRequestMessage request) {
+	public AbstractHttpServerRequestMessageLog(HttpRequestMessage request) {
 		super(commonSubject, request);
 		this.request = request;
 	}

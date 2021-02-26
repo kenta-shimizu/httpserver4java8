@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -173,7 +174,7 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 							
 							HttpRequestMessage req = reqMsgQueue.take();
 							
-							putLog(req);
+							HttpServerRequestMessageLog reqLog = putLog(req);
 							
 							HttpResponseMessage res = receiveRequest(req, connectionValue, config);
 							
@@ -183,7 +184,9 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 							
 							boolean f = sendResponse(channel, req, res);
 							
-							putLog(res);
+							HttpServerResponseMessageLog resLog = putLog(res);
+							
+							putLog(reqLog, resLog, client, server);
 							
 							if ( ! f ) {
 								break;
@@ -212,6 +215,10 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 			
 			if ( t instanceof RuntimeException ) {
 				throw (RuntimeException)t;
+			}
+			
+			if ( t instanceof IOException ) {
+				throw (IOException)t;
 			}
 			
 			this.putLog(t);
@@ -255,6 +262,8 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				) {
 			
+			final List<byte[]> chunks = new ArrayList<>();
+			
 			try (
 					ByteArrayOutputStream sizest = new ByteArrayOutputStream();
 					) {
@@ -292,13 +301,24 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 						baos.write(recvQueue.take().byteValue());
 					}
 					
-					if ( recvQueue.take().byteValue() != CR ) {
-						throw new HttpServerRequestChunkMessageParseException();
+					{
+						byte b = recvQueue.take().byteValue();
+						if ( b != CR ) {
+							throw new HttpServerRequestChunkMessageParseException();
+						}
+						baos.write(b);
+					}
+					{
+						byte b = recvQueue.take().byteValue();
+						if ( b != LF ) {
+							throw new HttpServerRequestChunkMessageParseException();
+						}
+						baos.write(b);
 					}
 					
-					if ( recvQueue.take().byteValue() != LF ) {
-						throw new HttpServerRequestChunkMessageParseException();
-					}
+					chunks.add(baos.toByteArray());
+					
+					baos.reset();
 				}
 			}
 			
@@ -325,9 +345,9 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 						++ size;
 					}
 				}
+				
+				chunks.add(baos.toByteArray());
 			}
-			
-			byte[] chunks = baos.toByteArray();
 			
 			return AbstractHttpRequestChunkMessage.build(requestLine, headers, chunks);
 		}
@@ -364,7 +384,7 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 			}
 		}
 		
-		return HttpResponseMessage.build(request, HttpResponseCode.BadRequest);
+		return HttpResponseMessage.build(request, HttpResponseCode.InternalServerError);
 	}
 	
 	@Override
@@ -376,25 +396,35 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 		
 		try {
 			
-			byte[] bs = response.getBytes();
-			ByteBuffer buffer = ByteBuffer.allocate(bs.length);
-			buffer.put(bs);
-			((Buffer)buffer).flip();
+			final List<byte[]> ll;
 			
-			while ( buffer.hasRemaining() ) {
+			if ( request.method() == HttpRequestMethod.HEAD ) {
+				ll = Collections.singletonList(response.getHeadBytes());
+			} else {
+				ll = response.getBytes();
+			}
+			
+			for ( byte[] bs : ll ) {
 				
-				final Future<Integer> f = channel.write(buffer);
+				final ByteBuffer buffer = ByteBuffer.allocate(bs.length);
+				buffer.put(bs);
+				((Buffer)buffer).flip();
 				
-				try {
-					int w = f.get().intValue();
+				while ( buffer.hasRemaining() ) {
 					
-					if ( w <= 0 ) {
-						throw new HttpServerResponseMessageException();
+					final Future<Integer> f = channel.write(buffer);
+					
+					try {
+						int w = f.get().intValue();
+						
+						if ( w <= 0 ) {
+							throw new HttpServerResponseMessageException();
+						}
 					}
-				}
-				catch ( InterruptedException e ) {
-					f.cancel(true);
-					throw e;
+					catch ( InterruptedException e ) {
+						f.cancel(true);
+						throw e;
+					}
 				}
 			}
 		}

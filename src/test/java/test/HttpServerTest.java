@@ -2,6 +2,7 @@ package test;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -11,6 +12,8 @@ import com.shimizukenta.httpserver.AbstractHttpApiServerConfig;
 import com.shimizukenta.httpserver.HttpApiServer;
 import com.shimizukenta.httpserver.HttpRequestMessage;
 import com.shimizukenta.httpserver.HttpServerException;
+import com.shimizukenta.httpserver.generalfileapi.AbstractGeneralFileApi;
+import com.shimizukenta.httpserver.generalfileapi.AbstractGeneralFileApiConfig;
 import com.shimizukenta.httpserver.jsonapi.AbstractJsonApi;
 
 public class HttpServerTest {
@@ -33,15 +36,22 @@ public class HttpServerTest {
 			private static final long serialVersionUID = 6047203276687113314L;
 		};
 		
-		
 		config.addServerAddress(new InetSocketAddress("127.0.0.1", 8080));
 		
 		try (
 				HttpApiServer server = new AbstractHttpApiServer(config) {};
 				) {
 			
+			AbstractGeneralFileApiConfig generalFileConfig = new AbstractGeneralFileApiConfig() {
+				
+				private static final long serialVersionUID = -7907965360626723326L;
+			};
+			
+			generalFileConfig.rootPath(Paths.get("./html"));
+			generalFileConfig.addDirectoryIndex("index.html");
+			
 			server.addApi(new AbstractJsonApi() {
-
+				
 				@Override
 				public boolean accept(HttpRequestMessage request) {
 					return request.uri().startsWith("/json");
@@ -52,6 +62,9 @@ public class HttpServerTest {
 					return "{\"success\":true}";
 				}
 			});
+			
+			server.addApi(new AbstractGeneralFileApi(generalFileConfig) {});
+			
 			
 			server.addLogListener(log -> {
 				echo(log);

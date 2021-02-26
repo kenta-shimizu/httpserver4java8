@@ -48,6 +48,11 @@ public abstract class AbstractHttpRequestMessage extends AbstractHttpMessage imp
 	}
 	
 	@Override
+	public String absPath() {
+		return requestLine.absPath();
+	}
+	
+	@Override
 	public HttpVersion version() {
 		synchronized ( this ) {
 			if ( this.cacheVersion == null ) {

@@ -3,41 +3,57 @@ package com.shimizukenta.httpserver;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class AbstractHttpRequestBytesMessage extends AbstractHttpRequestMessage {
 	
 	private static final long serialVersionUID = -4666937793555047905L;
 	
-	private final byte[] body;
-	private byte[] cacheBytes;
+	private final List<byte[]> body;
 	
+	private List<byte[]> cacheBytes;
 	private String cacheToString;
+	
+	public AbstractHttpRequestBytesMessage(
+			HttpRequestLineParser requestLine,
+			HttpHeaderListParser headerList,
+			List<byte[]> body) {
+		
+		super(requestLine, headerList);
+		
+		this.body = body.stream()
+				.map(bs -> Arrays.copyOf(bs, bs.length))
+				.collect(Collectors.toList());
+		
+		this.cacheToString = null;
+		this.cacheBytes = null;
+	}
 	
 	public AbstractHttpRequestBytesMessage(
 			HttpRequestLineParser requestLine,
 			HttpHeaderListParser headerList,
 			byte[] body) {
 		
-		super(requestLine, headerList);
-		
-		this.body = Arrays.copyOf(body, body.length);
-		
-		this.cacheToString = null;
-		this.cacheBytes = null;
+		this(requestLine, headerList, Collections.singletonList(body));
 	}
 	
 	@Override
-	public byte[] body() {
-		return Arrays.copyOf(body, body.length);
+	public List<byte[]> body() {
+		return Collections.unmodifiableList(this.body);
 	}
-
+	
 	@Override
-	public byte[] getBytes() {
+	public List<byte[]> getBytes() {
 		
 		synchronized ( this ) {
 			
 			if ( this.cacheBytes == null ) {
+				
+				List<byte[]> ll = new ArrayList<>();
 				
 				try (
 						ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -53,22 +69,17 @@ public abstract class AbstractHttpRequestBytesMessage extends AbstractHttpReques
 					
 					baos.write(CrLfBytes);
 					
-					baos.write(body);
-					
-					this.cacheBytes = baos.toByteArray();
+					ll.add(baos.toByteArray());
 				}
 				catch ( IOException giveup ) {
 				}
+				
+				ll.addAll(body);
+				
+				this.cacheBytes = Collections.unmodifiableList(ll);
 			}
 			
-			if ( this.cacheBytes == null ) {
-				
-				return new byte[0];
-			
-			} else {
-				
-				return Arrays.copyOf(this.cacheBytes, this.cacheBytes.length);
-			}
+			return this.cacheBytes;
 		}
 	}
 	

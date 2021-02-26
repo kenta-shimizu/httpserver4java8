@@ -46,6 +46,16 @@ public final class HttpRequestLineParser implements Serializable {
 	}
 	
 	/**
+	 * Returns Absolute-Path from URI.
+	 * 
+	 * @return Absolute-Path
+	 */
+	public String absPath() {
+		String[] ss = this.uri.split("\\?", 2);
+		return ss[0];
+	}
+	
+	/**
 	 * Returns Version-String.
 	 * 
 	 * @return Version-String

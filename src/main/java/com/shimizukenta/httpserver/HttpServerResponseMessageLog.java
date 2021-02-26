@@ -1,6 +1,6 @@
 package com.shimizukenta.httpserver;
 
-public interface HttpResponseMessageLog extends HttpServerLog {
+public interface HttpServerResponseMessageLog extends HttpServerLog {
 	
 	/**
 	 * Returns Http-Response-Message.

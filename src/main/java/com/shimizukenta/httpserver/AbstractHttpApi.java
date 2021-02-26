@@ -32,8 +32,16 @@ public abstract class AbstractHttpApi implements HttpApi {
 		return header("Date", nowZonedDateTime());
 	}
 	
+	protected static HttpHeader server(HttpServerConfig config) {
+		return header("Server", config.serverName());
+	}
+	
 	protected static HttpHeader acceptRanges() {
 		return header("Accept-Ranges", "bytes");
+	}
+	
+	protected static HttpHeader contentType(HttpContentType type) {
+		return header("Content-Type", type.type());
 	}
 	
 	protected static HttpHeader contentLength(byte[] bs) {

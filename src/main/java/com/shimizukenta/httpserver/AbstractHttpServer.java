@@ -265,35 +265,64 @@ public abstract class AbstractHttpServer implements HttpServer {
 		});
 	}
 	
-	protected void putLog(HttpRequestMessage request) {
+	protected AbstractHttpServerRequestMessageLog putLog(HttpRequestMessage request) {
 		
-		putLog(new AbstractHttpRequestMessageLog(request) {
+		AbstractHttpServerRequestMessageLog log = new AbstractHttpServerRequestMessageLog(request) {
 			
 			private static final long serialVersionUID = -5745877813910058368L;
-		});
+		};
+		
+		putLog(log);
+		
+		return log;
 	}
 	
-	protected void putLog(HttpResponseMessage response) {
+	protected AbstractHttpServerResponseMessageLog putLog(HttpResponseMessage response) {
 		
-		putLog(new AbstractHttpResponseMessageLog(response) {
+		AbstractHttpServerResponseMessageLog log =new AbstractHttpServerResponseMessageLog(response) {
 			
 			private static final long serialVersionUID = 6478174154016942721L;
-		});
+		};
+		
+		putLog(log);
+		
+		return log;
 	}
 	
-	protected void putLog(Throwable t) {
-		putLog(new AbstractHttpServerThrowableLog(t) {
+	protected AbstractHttpServerAccessLog putLog(
+			HttpServerRequestMessageLog request,
+			HttpServerResponseMessageLog response,
+			SocketAddress client,
+			SocketAddress server) {
+		
+		AbstractHttpServerAccessLog log = new AbstractHttpServerAccessLog(
+				request,
+				response,
+				client,
+				server) {
+			
+					private static final long serialVersionUID = 3751112139339892597L;
+		};
+		
+		putLog(log);
+		
+		return log;
+	}
+	
+	protected AbstractHttpServerThrowableLog putLog(Throwable t) {
+		
+		AbstractHttpServerThrowableLog log =new AbstractHttpServerThrowableLog(t) {
 
 			private static final long serialVersionUID = -7233644881222347640L;
-		});
+		};
+		
+		putLog(log);
+		
+		return log;
 	}
 	
 	protected ExecutorService executorService() {
 		return this.execServ;
-	}
-	
-	protected HttpServerConfig config() {
-		return config;
 	}
 	
 }

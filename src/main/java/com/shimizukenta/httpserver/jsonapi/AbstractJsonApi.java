@@ -9,6 +9,7 @@ import com.shimizukenta.httpserver.AbstractHttpApiConfig;
 import com.shimizukenta.httpserver.AbstractHttpResponseMessage;
 import com.shimizukenta.httpserver.HttpConnectionValue;
 import com.shimizukenta.httpserver.HttpContentEncoder;
+import com.shimizukenta.httpserver.HttpContentType;
 import com.shimizukenta.httpserver.HttpEncodingResult;
 import com.shimizukenta.httpserver.HttpHeader;
 import com.shimizukenta.httpserver.HttpHeaderListParser;
@@ -51,7 +52,7 @@ public abstract class AbstractJsonApi extends AbstractHttpApi implements JsonApi
 		final List<HttpHeader> headers = new ArrayList<>();
 		
 		headers.add(date());
-		headers.add(header("Server", serverConfig.serverName()));
+		headers.add(server(serverConfig));
 		headers.add(header("Last-Modified", nowZonedDateTime()));
 		
 		encResult.contentEncoding()
@@ -60,7 +61,7 @@ public abstract class AbstractJsonApi extends AbstractHttpApi implements JsonApi
 		
 		headers.add(acceptRanges());
 		headers.add(contentLength(encResult.getBytes()));
-		headers.add(header("Content-Type", "application/json"));
+		headers.add(contentType(HttpContentType.JSON));
 		headers.addAll(connectionKeeyAlive(request, connectionValue));
 		
 		return new AbstractHttpResponseMessage(

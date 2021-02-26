@@ -3,30 +3,47 @@ package com.shimizukenta.httpserver;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class AbstractHttpResponseMessage extends AbstractHttpMessage implements HttpResponseMessage {
 	
 	private static final long serialVersionUID = -769739754437449724L;
 	
 	private final HttpResponseStatusLine statusLine;
-	private final byte[] body;
+	private final List<byte[]> body;
 	
-	private byte[] cacheBytes;
+	private byte[] cacheHeadBytes;
+	private List<byte[]> cacheBytes;
 	private String cacheToString;
+	
+	public AbstractHttpResponseMessage(
+			HttpResponseStatusLine statusLine,
+			HttpHeaderListParser headerList,
+			List<byte[]> body) {
+		
+		super(headerList);
+		
+		this.statusLine = statusLine;
+		
+		this.body = body.stream()
+				.map(bs -> Arrays.copyOf(bs, bs.length))
+				.collect(Collectors.toList());
+		
+		this.cacheHeadBytes = null;
+		this.cacheBytes = null;
+		this.cacheToString = null;
+	}
 	
 	public AbstractHttpResponseMessage(
 			HttpResponseStatusLine statusLine,
 			HttpHeaderListParser headerList,
 			byte[] body) {
 		
-		super(headerList);
-		
-		this.statusLine = statusLine;
-		this.body = Arrays.copyOf(body, body.length);
-		
-		this.cacheBytes = null;
-		this.cacheToString = null;
+		this(statusLine, headerList, Collections.singletonList(body));
 	}
 	
 	@Override
@@ -40,16 +57,33 @@ public abstract class AbstractHttpResponseMessage extends AbstractHttpMessage im
 	}
 	
 	@Override
-	public byte[] body() {
-		return Arrays.copyOf(body, body.length);
+	public List<byte[]> body() {
+		return Collections.unmodifiableList(this.body);
 	}
 	
 	@Override
-	public byte[] getBytes() {
+	public List<byte[]> getBytes() {
 		
 		synchronized ( this ) {
 			
 			if ( this.cacheBytes == null ) {
+				
+				final List<byte[]> ll = new ArrayList<>();
+				ll.add(getHeadBytes());
+				ll.addAll(body);
+				
+				this.cacheBytes = Collections.unmodifiableList(ll);
+			}
+			
+			return this.cacheBytes;
+		}
+	}
+	
+	public byte[] getHeadBytes() {
+		
+		synchronized ( this ) {
+			
+			if ( this.cacheHeadBytes == null ) {
 				
 				try (
 						ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -65,18 +99,16 @@ public abstract class AbstractHttpResponseMessage extends AbstractHttpMessage im
 					
 					baos.write(CrLfBytes);
 					
-					baos.write(body);
-					
-					this.cacheBytes = baos.toByteArray();
+					this.cacheHeadBytes = baos.toByteArray();
 				}
 				catch ( IOException giveup ) {
 				}
 			}
 			
-			return this.cacheBytes == null ? new byte[0] : this.cacheBytes;
+			return this.cacheHeadBytes == null ? new byte[0] : this.cacheHeadBytes;
 		}
 	}
-	
+
 	@Override
 	public String statusLine() {
 		return statusLine.toLine();
@@ -91,10 +123,10 @@ public abstract class AbstractHttpResponseMessage extends AbstractHttpMessage im
 				
 				StringBuilder sb = new StringBuilder();
 				
-				sb.append(this.statusLine()).append(CrLfString);
+				sb.append(this.statusLine());
 				
 				for ( String line : headerLines() ) {
-					sb.append(line).append(CrLfString);
+					sb.append(CrLfString).append(line);
 				}
 				
 				this.cacheToString = sb.toString();

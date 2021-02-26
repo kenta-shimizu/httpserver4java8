@@ -55,9 +55,9 @@ public abstract class AbstractHttpServerLog implements HttpServerLog, Serializab
 		return value().map(Object::toString);
 	}
 	
-	private static final String BR = System.lineSeparator();
-	private static final String SPACE = "  ";
-	private static DateTimeFormatter DATETIME = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+	protected static final String BR = System.lineSeparator();
+	protected static final String SPACE = "  ";
+	protected static final DateTimeFormatter DATETIME = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 	
 	@Override
 	public String toString() {

@@ -3,6 +3,7 @@ package com.shimizukenta.httpserver.generalfileapi;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -53,5 +54,24 @@ public abstract class AbstractGeneralFileApiConfig extends AbstractHttpApiConfig
 		return Collections.unmodifiableList(this.directoryIndexes);
 	}
 	
+	/**
+	 * Add Directory-Index-File.
+	 * 
+	 * @param file
+	 * @return {@code true} if add success
+	 */
+	public boolean addDirectoryIndex(CharSequence file) {
+		return directoryIndexes.add(Objects.requireNonNull(file).toString());
+	}
+	
+	/**
+	 * Remove Directory-Index-File.
+	 * 
+	 * @param file
+	 * @return {@code true} if remove success
+	 */
+	public boolean removeDirectoryIndex(CharSequence file) {
+		return directoryIndexes.remove(Objects.requireNonNull(file).toString());
+	}
 	
 }
