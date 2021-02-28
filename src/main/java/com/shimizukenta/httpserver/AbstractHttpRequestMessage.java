@@ -53,6 +53,11 @@ public abstract class AbstractHttpRequestMessage extends AbstractHttpMessage imp
 	}
 	
 	@Override
+	public HttpRequestQuery getQueryFromUri() throws HttpServerRequestMessageParseException {
+		return requestLine.getQueryFromUri();
+	}
+	
+	@Override
 	public HttpVersion version() {
 		synchronized ( this ) {
 			if ( this.cacheVersion == null ) {

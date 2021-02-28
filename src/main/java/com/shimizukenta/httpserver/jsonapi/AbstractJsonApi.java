@@ -53,7 +53,7 @@ public abstract class AbstractJsonApi extends AbstractHttpApi implements JsonApi
 		
 		headers.add(date());
 		headers.add(server(serverConfig));
-		headers.add(header("Last-Modified", nowZonedDateTime()));
+		headers.add(lastModified(nowZonedDateTime()));
 		
 		encResult.contentEncoding()
 		.map(x -> contentEncoding(x))

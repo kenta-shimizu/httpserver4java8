@@ -28,6 +28,14 @@ public interface HttpRequestMessage extends HttpMessage {
 	public String absPath();
 	
 	/**
+	 * Returns HttpRequestQuery from URI.
+	 * 
+	 * @return HttpRequestQuery from URI
+	 * @throws HttpServerRequestMessageParseException
+	 */
+	public HttpRequestQuery getQueryFromUri() throws HttpServerRequestMessageParseException;
+	
+	/**
 	 * Returns Method.
 	 * 
 	 * @return Method

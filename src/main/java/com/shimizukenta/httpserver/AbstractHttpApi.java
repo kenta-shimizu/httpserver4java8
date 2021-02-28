@@ -1,5 +1,9 @@
 package com.shimizukenta.httpserver;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,12 +32,22 @@ public abstract class AbstractHttpApi implements HttpApi {
 		return ZonedDateTime.now(gmtZoneId).format(DateTimeFormatter.RFC_1123_DATE_TIME);
 	}
 	
+	protected static final String filePathZonedDateTime(Path filePath) throws IOException {
+		FileTime ft = Files.getLastModifiedTime(filePath);
+		ZonedDateTime z = ZonedDateTime.ofInstant(ft.toInstant(), gmtZoneId);
+		return z.format(DateTimeFormatter.RFC_1123_DATE_TIME);
+	}
+	
 	protected static HttpHeader date() {
 		return header("Date", nowZonedDateTime());
 	}
 	
 	protected static HttpHeader server(HttpServerConfig config) {
 		return header("Server", config.serverName());
+	}
+	
+	protected static HttpHeader lastModified(String zdtStr) {
+		return header("Last-Modified", zdtStr);
 	}
 	
 	protected static HttpHeader acceptRanges() {

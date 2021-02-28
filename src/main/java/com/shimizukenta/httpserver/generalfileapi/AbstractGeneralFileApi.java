@@ -67,10 +67,6 @@ public abstract class AbstractGeneralFileApi extends AbstractHttpApi implements 
 			return HttpResponseMessage.build(request, HttpResponseCode.NotFound);
 		}
 		
-//		File file = filepath.toFile();
-//		
-//		file.lastModified();
-		
 		try {
 			byte[] body = Files.readAllBytes(filepath);
 			
@@ -84,8 +80,7 @@ public abstract class AbstractGeneralFileApi extends AbstractHttpApi implements 
 			
 			headers.add(date());
 			headers.add(server(serverConfig));
-			
-//			headers.add(header("Last-Modified", nowZonedDateTime()));
+			headers.add(lastModified(filePathZonedDateTime(filepath)));
 			
 			encResult.contentEncoding()
 			.map(x -> contentEncoding(x))

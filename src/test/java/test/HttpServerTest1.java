@@ -3,9 +3,6 @@ package test;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Paths;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
 import com.shimizukenta.httpserver.AbstractHttpApiServer;
 import com.shimizukenta.httpserver.AbstractHttpApiServerConfig;
@@ -16,20 +13,15 @@ import com.shimizukenta.httpserver.generalfileapi.AbstractGeneralFileApi;
 import com.shimizukenta.httpserver.generalfileapi.AbstractGeneralFileApiConfig;
 import com.shimizukenta.httpserver.jsonapi.AbstractJsonApi;
 
-public class HttpServerTest {
+public class HttpServerTest1 {
 
-	public HttpServerTest() {
+	public HttpServerTest1() {
 		// TODO Auto-generated constructor stub
 	}
 	
 	public static void main(String[] args) {
 		
 		echo("Test start");
-		
-		{
-			ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of("GMT"));
-			echo(zdt.format(DateTimeFormatter.RFC_1123_DATE_TIME));
-		}
 		
 		AbstractHttpApiServerConfig config = new AbstractHttpApiServerConfig() {
 			
@@ -72,8 +64,8 @@ public class HttpServerTest {
 			
 			server.open();
 			
-			synchronized ( HttpServerTest.class ) {
-				HttpServerTest.class.wait();
+			synchronized ( HttpServerTest1.class ) {
+				HttpServerTest1.class.wait();
 			}
 		}
 		catch ( InterruptedException ignore ) {

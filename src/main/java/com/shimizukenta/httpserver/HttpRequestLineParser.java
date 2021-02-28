@@ -56,6 +56,18 @@ public final class HttpRequestLineParser implements Serializable {
 	}
 	
 	/**
+	 * Returns HttpRequeryQuery from URI.
+	 * 
+	 * @return HttpRequestQuery from URI
+	 * @throws HttpServerRequestMessageParseException
+	 */
+	public HttpRequestQuery getQueryFromUri() throws HttpServerRequestMessageParseException {
+		String[] ss = this.uri.split("\\?", 2);
+		String p = ss.length == 2 ? ss[1] : "";
+		return HttpRequestQuery.from(p);
+	}
+	
+	/**
 	 * Returns Version-String.
 	 * 
 	 * @return Version-String
