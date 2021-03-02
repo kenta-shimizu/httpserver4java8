@@ -44,7 +44,7 @@ public interface HttpMessage {
 	 * 
 	 * @return body-bytes
 	 */
-	public List<byte[]> body();
+	public byte[] body();
 	
 	/**
 	 * Returns Message bytes-data.

@@ -58,8 +58,12 @@ public abstract class AbstractHttpApi implements HttpApi {
 		return header("Content-Type", type.type());
 	}
 	
+	protected static HttpHeader contentLength(int length) {
+		return header("Content-Length", String.valueOf(length));
+	}
+	
 	protected static HttpHeader contentLength(byte[] bs) {
-		return header("Content-Length", String.valueOf(bs.length));
+		return contentLength(bs.length);
 	}
 	
 	protected static HttpHeader contentEncoding(HttpEncoding enc) {

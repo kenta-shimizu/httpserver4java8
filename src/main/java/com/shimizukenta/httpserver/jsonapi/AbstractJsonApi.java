@@ -60,14 +60,14 @@ public abstract class AbstractJsonApi extends AbstractHttpApi implements JsonApi
 		.ifPresent(headers::add);
 		
 		headers.add(acceptRanges());
-		headers.add(contentLength(encResult.getBytes()));
+		headers.add(contentLength(encResult.length()));
 		headers.add(contentType(HttpContentType.JSON));
 		headers.addAll(connectionKeeyAlive(request, connectionValue));
 		
 		return new AbstractHttpResponseMessage(
 				statusLine,
 				HttpHeaderListParser.of(headers),
-				encResult.getBytes()) {
+				encResult) {
 			
 			private static final long serialVersionUID = -6251284974505121306L;
 		};

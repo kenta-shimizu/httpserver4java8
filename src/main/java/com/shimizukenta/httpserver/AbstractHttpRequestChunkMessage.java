@@ -14,7 +14,7 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 	private static final long serialVersionUID = -5824443783422568323L;
 	
 	private final List<byte[]> chunkBytes;
-	private final List<byte[]> body;
+	private final byte[] body;
 	private final List<HttpHeader> trailers;
 	
 	private List<byte[]> cacheBytes;
@@ -25,7 +25,7 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 			HttpRequestLineParser requestLine,
 			HttpHeaderListParser headerList,
 			List<byte[]> chunkBytes,
-			List<byte[]> body,
+			byte[] body,
 			List<HttpHeader> trailers
 			) {
 		
@@ -35,9 +35,7 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 				.map(bs -> Arrays.copyOf(bs, bs.length))
 				.collect(Collectors.toList());
 		
-		this.body = body.stream()
-				.map(bs -> Arrays.copyOf(bs, bs.length))
-				.collect(Collectors.toList());
+		this.body = Arrays.copyOf(body, body.length);
 		
 		this.trailers = new ArrayList<>(trailers);
 		
@@ -47,8 +45,8 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 	}
 	
 	@Override
-	public List<byte[]> body() {
-		return Collections.unmodifiableList(this.body);
+	public byte[] body() {
+		return Arrays.copyOf(body, body.length);
 	}
 	
 	@Override
@@ -156,8 +154,6 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 		
 		final InnerQueue q = new InnerQueue(chunks);
 		
-		final List<byte[]> bodys = new ArrayList<>();
-		
 		try (
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				) {
@@ -197,9 +193,6 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 						baos.write(q.take());
 					}
 					
-					bodys.add(baos.toByteArray());
-					baos.reset();
-					
 					if ( q.take() != CR ) {
 						throw new HttpServerRequestChunkMessageParseException();
 					}
@@ -210,6 +203,9 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 					
 				}
 			}
+			
+			final byte[] body = baos.toByteArray();
+			baos.reset();
 			
 			final List<String> trailers = new ArrayList<>();
 			
@@ -241,7 +237,7 @@ public abstract class AbstractHttpRequestChunkMessage extends AbstractHttpReques
 					requestLine,
 					headerList,
 					chunks,
-					bodys,
+					body,
 					trailerParser.headers()) {
 				
 						private static final long serialVersionUID = 6295457468522351391L;

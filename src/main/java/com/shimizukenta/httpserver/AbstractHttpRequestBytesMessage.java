@@ -7,13 +7,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class AbstractHttpRequestBytesMessage extends AbstractHttpRequestMessage {
 	
 	private static final long serialVersionUID = -4666937793555047905L;
 	
-	private final List<byte[]> body;
+	private final byte[] body;
 	
 	private List<byte[]> cacheBytes;
 	private String cacheToString;
@@ -21,29 +20,19 @@ public abstract class AbstractHttpRequestBytesMessage extends AbstractHttpReques
 	public AbstractHttpRequestBytesMessage(
 			HttpRequestLineParser requestLine,
 			HttpHeaderListParser headerList,
-			List<byte[]> body) {
+			byte[] body) {
 		
 		super(requestLine, headerList);
 		
-		this.body = body.stream()
-				.map(bs -> Arrays.copyOf(bs, bs.length))
-				.collect(Collectors.toList());
+		this.body = Arrays.copyOf(body, body.length);
 		
 		this.cacheToString = null;
 		this.cacheBytes = null;
 	}
 	
-	public AbstractHttpRequestBytesMessage(
-			HttpRequestLineParser requestLine,
-			HttpHeaderListParser headerList,
-			byte[] body) {
-		
-		this(requestLine, headerList, Collections.singletonList(body));
-	}
-	
 	@Override
-	public List<byte[]> body() {
-		return Collections.unmodifiableList(this.body);
+	public byte[] body() {
+		return Arrays.copyOf(body, body.length);
 	}
 	
 	@Override
@@ -74,7 +63,7 @@ public abstract class AbstractHttpRequestBytesMessage extends AbstractHttpReques
 				catch ( IOException giveup ) {
 				}
 				
-				ll.addAll(body);
+				ll.add(body);
 				
 				this.cacheBytes = Collections.unmodifiableList(ll);
 			}

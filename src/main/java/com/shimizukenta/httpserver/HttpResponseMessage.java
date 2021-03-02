@@ -22,6 +22,7 @@ public interface HttpResponseMessage extends HttpMessage {
 	 */
 	public byte[] getHeadBytes();
 	
+	
 	public static HttpResponseMessage build(
 			HttpRequestMessage request,
 			HttpResponseCode responseCode) {
@@ -29,7 +30,7 @@ public interface HttpResponseMessage extends HttpMessage {
 		return new AbstractHttpResponseMessage(
 				new HttpResponseStatusLine(request.version(), responseCode),
 				HttpHeaderListParser.of(Collections.emptyList()),
-				Collections.singletonList(new byte[0])
+				HttpContentEncoder.empty()
 				) {
 			
 					private static final long serialVersionUID = 2972199851752084860L;
