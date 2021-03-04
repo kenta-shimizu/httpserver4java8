@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.shimizukenta.httpserver.generalfileapi.AbstractGeneralFileApi;
 import com.shimizukenta.httpserver.jsonapi.AbstractJsonApi;
+import com.shimizukenta.httpserver.preflight.SimplePreFlightApi;
 
 public class HttpServers {
 
@@ -22,6 +23,8 @@ public class HttpServers {
 	protected HttpServer buildServer(SimpleHttpServerConfig config, List<? extends HttpApi> apis) {
 		
 		final AbstractHttpApiServer server = new AbstractHttpApiServer(config.apiServerConfig()) {};
+		
+		server.addApi(new SimplePreFlightApi());
 		
 		apis.forEach(server::addApi);
 		

@@ -59,6 +59,7 @@ public abstract class AbstractJsonApi extends AbstractHttpApi implements JsonApi
 		.map(x -> contentEncoding(x))
 		.ifPresent(headers::add);
 		
+		headers.addAll(noCache(request));
 		headers.add(acceptRanges());
 		headers.add(contentLength(encResult.length()));
 		headers.add(contentType(HttpContentType.JSON));

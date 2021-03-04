@@ -50,8 +50,34 @@ public abstract class AbstractHttpApi implements HttpApi {
 		return header("Last-Modified", zdtStr);
 	}
 	
+	private static final HttpHeader pragmeNoCacheHeader = header("Pragma", "no-cache");
+	private static final HttpHeader noCacheControlHeader = header("Cache-Control", "no-cache");
+	
+	protected static List<HttpHeader> noCache(HttpRequestMessage request) {
+		
+		switch ( request.version() ) {
+		case HTTP_1_0: {
+			
+			return Collections.singletonList(pragmeNoCacheHeader);
+			/* break */
+		}
+		case HTTP_1_1:
+		case HTTP_2_0: {
+			
+			return Collections.singletonList(noCacheControlHeader);
+			/* break */
+		}
+		default: {
+			
+			return Collections.emptyList();
+		}
+		}
+	}
+	
+	private static final HttpHeader acceptRangesHeader = header("Accept-Ranges", "bytes");
+	
 	protected static HttpHeader acceptRanges() {
-		return header("Accept-Ranges", "bytes");
+		return acceptRangesHeader;
 	}
 	
 	protected static HttpHeader contentType(HttpContentType type) {
