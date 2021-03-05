@@ -1,4 +1,4 @@
-package com.shimizukenta.httpserver.preflight;
+package com.shimizukenta.httpserver.preflightapi;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -13,10 +13,7 @@ import com.shimizukenta.httpserver.HttpServerRequestMessageParseException;
 public abstract class AbstractPreFlightApi extends AbstractHttpApi implements PreFlightApi {
 
 	public AbstractPreFlightApi() {
-		super(new AbstractHttpApiConfig() {
-
-			private static final long serialVersionUID = 3783079094720922890L;
-		});
+		super();
 	}
 	
 	public AbstractPreFlightApi(AbstractHttpApiConfig config) {

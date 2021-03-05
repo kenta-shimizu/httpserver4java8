@@ -1,4 +1,4 @@
-package com.shimizukenta.httpserver.preflight;
+package com.shimizukenta.httpserver.preflightapi;
 
 import com.shimizukenta.httpserver.HttpApi;
 

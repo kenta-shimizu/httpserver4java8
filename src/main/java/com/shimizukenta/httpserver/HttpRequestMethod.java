@@ -4,10 +4,10 @@ public enum HttpRequestMethod {
 	
 	UNKNOWN("UNKNOWN"),
 	
+	OPTIONS("OPTIONS"),
 	GET("GET"),
 	HEAD("HEAD"),
 	POST("POST"),
-	OPTIONS("OPTIONS"),
 	PUT("PUT"),
 	DELETE("DELETE"),
 	TRACE("TRACE"),

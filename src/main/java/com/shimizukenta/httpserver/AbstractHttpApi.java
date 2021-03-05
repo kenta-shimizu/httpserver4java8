@@ -13,10 +13,12 @@ import java.util.List;
 
 public abstract class AbstractHttpApi implements HttpApi {
 	
-//	private AbstractHttpApiConfig config;
+	public AbstractHttpApi() {
+		/* Nothing */
+	}
 	
 	public AbstractHttpApi(AbstractHttpApiConfig config) {
-//		this.config = config;
+		/* Nothing */
 	}
 	
 	protected static HttpHeader header(CharSequence name, CharSequence value) {

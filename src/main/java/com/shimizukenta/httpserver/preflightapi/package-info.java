@@ -4,4 +4,4 @@
  * @author kenta-shimizu
  *
  */
-package com.shimizukenta.httpserver.preflight;
+package com.shimizukenta.httpserver.preflightapi;

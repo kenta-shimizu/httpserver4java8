@@ -5,10 +5,12 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import com.shimizukenta.httpserver.generalfileapi.AbstractGeneralFileApi;
 import com.shimizukenta.httpserver.jsonapi.AbstractJsonApi;
-import com.shimizukenta.httpserver.preflight.SimplePreFlightApi;
+import com.shimizukenta.httpserver.preflightapi.SimplePreFlightApi;
 
 public class HttpServers {
 
@@ -20,9 +22,52 @@ public class HttpServers {
 		private static HttpServers inst = new HttpServers();
 	}
 	
-	protected HttpServer buildServer(SimpleHttpServerConfig config, List<? extends HttpApi> apis) {
+	protected AbstractHttpApiServer buildServer(SimpleHttpServerConfig config, List<? extends HttpApi> apis) {
 		
 		final AbstractHttpApiServer server = new AbstractHttpApiServer(config.apiServerConfig()) {};
+		
+		server.addApi(new AbstractHttpApi() {
+
+			@Override
+			public boolean accept(HttpRequestMessage request) {
+				
+				switch ( request.version() ) {
+				case HTTP_1_0: {
+					return false;
+					/* break; */
+				}
+				case HTTP_1_1:
+				case HTTP_2_0:
+				default: {
+					
+					Optional<String> opHost = request.headerListParser().host();
+					
+					if ( ! opHost.isPresent() ) {
+						return true;
+					}
+					
+					final Set<String> hostNames = config.apiServerConfig().acceptHostNames();
+					
+					if ( hostNames.isEmpty() ) {
+						return false;
+					}
+					
+					return ! hostNames.contains(opHost.get());
+				}
+				}
+			}
+			
+			@Override
+			public HttpResponseMessage receiveRequest(
+					HttpRequestMessage request,
+					HttpConnectionValue connectionValue,
+					HttpServerConfig serverConfig)
+							throws InterruptedException, HttpServerException {
+				
+				return HttpResponseMessage.build(request, HttpResponseCode.BadRequest);
+			}
+			
+		});
 		
 		server.addApi(new SimplePreFlightApi());
 		
@@ -47,41 +92,41 @@ public class HttpServers {
 	}
 	
 	
-	public static HttpServer simpleHttpServer(SimpleHttpServerConfig config, List<? extends HttpApi> apis) {
+	public static AbstractHttpApiServer simpleHttpServer(SimpleHttpServerConfig config, List<? extends HttpApi> apis) {
 		return SingletonHolder.inst.buildServer(config, apis);
 	}
 	
-	public static HttpServer simpleHttpServer(SocketAddress address, Path rootPath, List<? extends HttpApi> apis) {
+	public static AbstractHttpApiServer simpleHttpServer(SocketAddress address, Path rootPath, List<? extends HttpApi> apis) {
 		HttpServers a = SingletonHolder.inst;
 		return a.buildServer(a.createSimpleHttpServerConfig(address, rootPath), apis);
 	}
 	
-	public static HttpServer simpleHttpServer(SimpleHttpServerConfig config, HttpApi... apis) {
+	public static AbstractHttpApiServer simpleHttpServer(SimpleHttpServerConfig config, HttpApi... apis) {
 		return SingletonHolder.inst.buildServer(config, Arrays.asList(apis));
 	}
 	
-	public static HttpServer simpleHttpServer(SocketAddress address, Path rootPath, HttpApi... apis) {
+	public static AbstractHttpApiServer simpleHttpServer(SocketAddress address, Path rootPath, HttpApi... apis) {
 		HttpServers a = SingletonHolder.inst;
 		return a.buildServer(a.createSimpleHttpServerConfig(address, rootPath), Arrays.asList(apis));
 	}
 	
-	public static HttpServer simpleHttpServer(SimpleHttpServerConfig config) {
+	public static AbstractHttpApiServer simpleHttpServer(SimpleHttpServerConfig config) {
 		return SingletonHolder.inst.buildServer(config, Collections.emptyList());
 	}
 	
-	public static HttpServer simpleHttpServer(SocketAddress address, Path rootPath) {
+	public static AbstractHttpApiServer simpleHttpServer(SocketAddress address, Path rootPath) {
 		HttpServers a = SingletonHolder.inst;
 		return a.buildServer(a.createSimpleHttpServerConfig(address, rootPath), Collections.emptyList());
 	}
 	
-	public static HttpServer jsonApiServer(
+	public static AbstractHttpApiServer jsonApiServer(
 			SimpleHttpServerConfig config,
 			List<? extends AbstractJsonApi> jsonApis) {
 		
 		return SingletonHolder.inst.buildServer(config, jsonApis);
 	}
 	
-	public static HttpServer jsonApiServer(
+	public static AbstractHttpApiServer jsonApiServer(
 			SocketAddress address,
 			Path rootPath,
 			List<? extends AbstractJsonApi> jsonApis) {
@@ -90,14 +135,14 @@ public class HttpServers {
 		return a.buildServer(a.createSimpleHttpServerConfig(address, rootPath), jsonApis);
 	}
 	
-	public static HttpServer jsonApiServer(
+	public static AbstractHttpApiServer jsonApiServer(
 			SimpleHttpServerConfig config,
 			AbstractJsonApi... jsonApis) {
 		
 		return SingletonHolder.inst.buildServer(config, Arrays.asList(jsonApis));
 	}
 	
-	public static HttpServer jsonApiServer(
+	public static AbstractHttpApiServer jsonApiServer(
 			SocketAddress address,
 			Path rootPath,
 			AbstractJsonApi... jsonApis) {

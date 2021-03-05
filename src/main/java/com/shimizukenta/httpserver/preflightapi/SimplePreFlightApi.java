@@ -1,4 +1,4 @@
-package com.shimizukenta.httpserver.preflight;
+package com.shimizukenta.httpserver.preflightapi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,16 +35,20 @@ public class SimplePreFlightApi extends AbstractPreFlightApi {
 		
 		final List<HttpHeader> headers = new ArrayList<>();
 		
+		headers.add(date());
+		headers.add(server(serverConfig));
+		
 		headers.add(accessControlAllowOrigin(request));
 		
 		headers.add(accessControlAllowMethods(
-				HttpRequestMethod.HEAD,
+				HttpRequestMethod.OPTIONS,
 				HttpRequestMethod.GET,
-				HttpRequestMethod.POST,
-				HttpRequestMethod.OPTIONS
+				HttpRequestMethod.HEAD,
+				HttpRequestMethod.POST
 				));
 		
 		headers.add(accessControlAllowCredentialsTrue());
+		headers.addAll(noCache(request));
 		headers.addAll(connectionKeeyAlive(request, connectionValue));
 		
 		return new AbstractHttpResponseMessage(
