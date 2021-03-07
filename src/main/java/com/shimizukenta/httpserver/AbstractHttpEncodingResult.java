@@ -6,46 +6,31 @@ import java.util.Optional;
 
 public abstract class AbstractHttpEncodingResult implements HttpEncodingResult, Serializable {
 	
-	private static final long serialVersionUID = 5193261535071119103L;
+	private static final long serialVersionUID = -689560339327132875L;
 	
-	private final byte[] originalBytes;
-	private final byte[] encBytes;
-	private final HttpEncoding enc;
+	private final Optional<HttpEncoding> enc;
+	private final byte[] body;
+	private final int length;
 	
-	public AbstractHttpEncodingResult(byte[] originalBytes, byte[] encBytes, HttpEncoding enc) {
-		this.originalBytes = Arrays.copyOf(originalBytes, originalBytes.length);
-		this.encBytes = Arrays.copyOf(encBytes, encBytes.length);
-		this.enc = enc;
+	public AbstractHttpEncodingResult(HttpEncoding enc, byte[] body) {
+		this.enc = (enc == null ? Optional.empty() : Optional.of(enc));
+		this.length = body.length;
+		this.body = Arrays.copyOf(body, this.length);
 	}
 	
 	@Override
-	public byte[] originalBytes() {
-		return Arrays.copyOf(originalBytes, originalBytes.length);
-	}
-	
-	@Override
-	public byte[] compressedBytes() {
-		return Arrays.copyOf(encBytes, encBytes.length);
-	}
-	
-	@Override
-	public Optional<HttpEncoding> contentEncoding() {
-		return this.enc == null ? Optional.empty() : Optional.of(this.enc);
-	}
-	
-	@Override
-	public boolean encoded() {
-		return this.enc != null;
+	public Optional<HttpEncoding> optionalEncoding() {
+		return this.enc;
 	}
 	
 	@Override
 	public byte[] getBytes() {
-		return encoded() ? compressedBytes() : originalBytes();
+		return Arrays.copyOf(this.body, this.length);
 	}
 	
 	@Override
 	public int length() {
-		return getBytes().length;
+		return this.length;
 	}
 	
 }

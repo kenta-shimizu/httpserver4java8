@@ -95,7 +95,7 @@ public abstract class AbstractHttpApi implements HttpApi {
 	}
 	
 	protected static HttpHeader contentEncoding(HttpEncoding enc) {
-		return header("Content-encoding", enc.toString());
+		return header("Content-Encoding", enc.toString());
 	}
 	
 	private static final HttpHeader connectionCloseHeader = header("Connection", "close");

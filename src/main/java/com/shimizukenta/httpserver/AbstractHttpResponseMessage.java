@@ -12,24 +12,26 @@ public abstract class AbstractHttpResponseMessage extends AbstractHttpMessage im
 	private static final long serialVersionUID = -769739754437449724L;
 	
 	private final HttpResponseStatusLine statusLine;
-	private final HttpEncodingResult encBody;
+	private final HttpResponseMessageBodyProxy bodyProxy;
 	
 	private byte[] cacheHeadBytes;
+	private byte[] cacheBody;
 	private List<byte[]> cacheBytes;
 	private String cacheToString;
 	
 	public AbstractHttpResponseMessage(
 			HttpResponseStatusLine statusLine,
 			HttpHeaderListParser headerList,
-			HttpEncodingResult encodingBody) {
+			HttpResponseMessageBodyProxy bodyProxy) {
 		
 		super(headerList);
 		
 		this.statusLine = statusLine;
 		
-		this.encBody = encodingBody;
+		this.bodyProxy = bodyProxy;
 		
 		this.cacheHeadBytes = null;
+		this.cacheBody = null;
 		this.cacheBytes = null;
 		this.cacheToString = null;
 	}
@@ -46,7 +48,29 @@ public abstract class AbstractHttpResponseMessage extends AbstractHttpMessage im
 	
 	@Override
 	public byte[] body() {
-		return encBody.contentEncoding().isPresent() ? encBody.compressedBytes() : encBody.originalBytes();
+		
+		synchronized ( this ) {
+			
+			if ( this.cacheBody == null ) {
+				
+				this.cacheBody = this.headerListParser().contentEncoding()
+						.map(enc -> {
+							try {
+								return this.bodyProxy.get(enc).getBytes();
+							}
+							catch ( IOException giveup ) {
+								return null;
+							}
+						})
+						.orElse(new byte[0]);
+			}
+			
+			return this.cacheBody;
+		}
+	}
+	
+	public HttpResponseMessageBodyProxy bodyProxy() {
+		return this.bodyProxy;
 	}
 	
 	@Override

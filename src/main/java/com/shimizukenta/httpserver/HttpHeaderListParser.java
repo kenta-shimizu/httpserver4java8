@@ -126,6 +126,16 @@ public final class HttpHeaderListParser {
 	}
 	
 	/**
+	 * Returns Content-Encoding if exist.
+	 * 
+	 * @return Content-Encoding if exist
+	 */
+	public Optional<HttpEncoding> contentEncoding() {
+		String s = getValue("Content-Encoding");
+		return s == null ? Optional.empty() : Optional.of(HttpEncoding.get(s));
+	}
+	
+	/**
 	 * Returns Host if exist.
 	 * 
 	 * @return Host if exist

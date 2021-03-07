@@ -1,5 +1,6 @@
 package com.shimizukenta.httpserver.jsonapi;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +8,8 @@ import java.util.List;
 import com.shimizukenta.httpserver.AbstractHttpApi;
 import com.shimizukenta.httpserver.AbstractHttpApiConfig;
 import com.shimizukenta.httpserver.AbstractHttpResponseMessage;
+import com.shimizukenta.httpserver.AbstractHttpResponseMessageBodyProxy;
 import com.shimizukenta.httpserver.HttpConnectionValue;
-import com.shimizukenta.httpserver.HttpContentEncoder;
 import com.shimizukenta.httpserver.HttpContentType;
 import com.shimizukenta.httpserver.HttpEncodingResult;
 import com.shimizukenta.httpserver.HttpHeader;
@@ -16,6 +17,7 @@ import com.shimizukenta.httpserver.HttpHeaderListParser;
 import com.shimizukenta.httpserver.HttpRequestMessage;
 import com.shimizukenta.httpserver.HttpResponseCode;
 import com.shimizukenta.httpserver.HttpResponseMessage;
+import com.shimizukenta.httpserver.HttpResponseMessageBodyProxy;
 import com.shimizukenta.httpserver.HttpResponseStatusLine;
 import com.shimizukenta.httpserver.HttpServerConfig;
 import com.shimizukenta.httpserver.HttpServerException;
@@ -40,11 +42,22 @@ public abstract class AbstractJsonApi extends AbstractHttpApi implements JsonApi
 			HttpServerConfig serverConfig)
 					throws InterruptedException, HttpServerException {
 		
-		final HttpEncodingResult encResult = HttpContentEncoder.encode(
-				request,
+		final HttpResponseMessageBodyProxy bodyProxy = new AbstractHttpResponseMessageBodyProxy(
 				this.buildJson(request).getBytes(StandardCharsets.UTF_8)
-				);
+				) {
+			
+					private static final long serialVersionUID = -1857589382812430618L;
+		};
 		
+		final HttpEncodingResult encResult;
+		
+		try {
+			encResult = bodyProxy.get(request.headerListParser().acceptEncodings());
+		}
+		catch ( IOException giveup ) {
+			return HttpResponseMessage.build(request, HttpResponseCode.InternalServerError);
+		}
+			
 		final HttpResponseStatusLine statusLine = new HttpResponseStatusLine(
 				request.version(),
 				HttpResponseCode.OK);
@@ -55,7 +68,7 @@ public abstract class AbstractJsonApi extends AbstractHttpApi implements JsonApi
 		headers.add(server(serverConfig));
 		headers.add(lastModified(nowZonedDateTime()));
 		
-		encResult.contentEncoding()
+		encResult.optionalEncoding()
 		.map(x -> contentEncoding(x))
 		.ifPresent(headers::add);
 		
@@ -68,10 +81,11 @@ public abstract class AbstractJsonApi extends AbstractHttpApi implements JsonApi
 		return new AbstractHttpResponseMessage(
 				statusLine,
 				HttpHeaderListParser.of(headers),
-				encResult) {
+				bodyProxy) {
 			
 			private static final long serialVersionUID = -6251284974505121306L;
 		};
+		
 	}
 	
 }

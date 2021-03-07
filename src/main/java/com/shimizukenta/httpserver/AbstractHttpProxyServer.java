@@ -6,7 +6,10 @@ public abstract class AbstractHttpProxyServer extends AbstractHttpServer {
 	
 	private final AbstractHttpServer in;
 	
-	public AbstractHttpProxyServer(AbstractHttpServer in, AbstractHttpServerConfig config) {
+	public AbstractHttpProxyServer(
+			AbstractHttpServer in,
+			AbstractHttpServerConfig config) {
+		
 		super(config);
 		this.in = in;
 		
@@ -45,8 +48,11 @@ public abstract class AbstractHttpProxyServer extends AbstractHttpServer {
 	}
 	
 	@Override
-	protected HttpResponseMessage receiveRequest(HttpRequestMessage message, HttpConnectionValue connectionValue,
-			HttpServerConfig serverConfig) throws InterruptedException, HttpServerException {
+	protected HttpResponseMessage receiveRequest(
+			HttpRequestMessage message,
+			HttpConnectionValue connectionValue,
+			HttpServerConfig serverConfig)
+					throws InterruptedException, HttpServerException {
 		
 		return this.in.receiveRequest(message, connectionValue, serverConfig);
 	}

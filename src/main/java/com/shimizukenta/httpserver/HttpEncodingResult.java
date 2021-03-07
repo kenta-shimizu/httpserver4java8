@@ -5,44 +5,23 @@ import java.util.Optional;
 public interface HttpEncodingResult {
 	
 	/**
-	 * Returns Original-bytes.
+	 * Returns HttpEncoding if exist.
 	 * 
-	 * @return Original-bytes
+	 * @return HttpEncoding if exist
 	 */
-	public byte[] originalBytes();
+	public Optional<HttpEncoding> optionalEncoding();
 	
 	/**
-	 * Returns Encoding-bytes.
+	 * Returns encoded bytes.
 	 * 
-	 * @return Encoding-bytes
-	 */
-	public byte[] compressedBytes();
-	
-	/**
-	 * Returns Encoding if encoded.
-	 * 
-	 * @return Encoding if encoded
-	 */
-	public Optional<HttpEncoding> contentEncoding();
-	
-	/**
-	 * Returns {@code true} if encoded.
-	 * 
-	 * @return {@code true} if encoded
-	 */
-	public boolean encoded();
-	
-	/**
-	 * Returns Encoding-Bytes if encoded, Original-bytes otherwise.
-	 * 
-	 * @return Encoding-Bytes if encoded, Original-bytes otherwise
+	 * @return encoded bytes
 	 */
 	public byte[] getBytes();
 	
 	/**
-	 * Returns Encoding-Bytes-length if encoded, Original-bytes-length otherwise.
+	 * Returns bytes length.
 	 * 
-	 * @return Encoding-Bytes-length if encoded, Original-bytes-length otherwise
+	 * @return bytes length
 	 */
 	public int length();
 	

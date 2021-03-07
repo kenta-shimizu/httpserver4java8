@@ -22,7 +22,21 @@ public interface HttpResponseMessage extends HttpMessage {
 	 */
 	public byte[] getHeadBytes();
 	
+	/**
+	 * Returns Body-Proxy.
+	 * 
+	 * @return Body-Proxy
+	 */
+	public HttpResponseMessageBodyProxy bodyProxy();
 	
+	
+	/**
+	 * Response-code only instance static-factory-method.
+	 * 
+	 * @param request
+	 * @param responseCode
+	 * @return HttpResponseMessage
+	 */
 	public static HttpResponseMessage build(
 			HttpRequestMessage request,
 			HttpResponseCode responseCode) {
@@ -30,10 +44,10 @@ public interface HttpResponseMessage extends HttpMessage {
 		return new AbstractHttpResponseMessage(
 				new HttpResponseStatusLine(request.version(), responseCode),
 				HttpHeaderListParser.of(Collections.emptyList()),
-				HttpContentEncoder.empty()
+				HttpResponseMessageBodyProxy.empty()
 				) {
 			
-					private static final long serialVersionUID = 2972199851752084860L;
+					private static final long serialVersionUID = -4802809175264273416L;
 		};
 	}
 	

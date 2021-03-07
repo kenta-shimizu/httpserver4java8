@@ -5,13 +5,13 @@ import java.util.List;
 
 import com.shimizukenta.httpserver.AbstractHttpResponseMessage;
 import com.shimizukenta.httpserver.HttpConnectionValue;
-import com.shimizukenta.httpserver.HttpContentEncoder;
 import com.shimizukenta.httpserver.HttpHeader;
 import com.shimizukenta.httpserver.HttpHeaderListParser;
 import com.shimizukenta.httpserver.HttpRequestMessage;
 import com.shimizukenta.httpserver.HttpRequestMethod;
 import com.shimizukenta.httpserver.HttpResponseCode;
 import com.shimizukenta.httpserver.HttpResponseMessage;
+import com.shimizukenta.httpserver.HttpResponseMessageBodyProxy;
 import com.shimizukenta.httpserver.HttpResponseStatusLine;
 import com.shimizukenta.httpserver.HttpServerConfig;
 import com.shimizukenta.httpserver.HttpServerException;
@@ -54,9 +54,9 @@ public class SimplePreFlightApi extends AbstractPreFlightApi {
 		return new AbstractHttpResponseMessage(
 				statusLine,
 				HttpHeaderListParser.of(headers),
-				HttpContentEncoder.empty()) {
+				HttpResponseMessageBodyProxy.empty()) {
 			
-			private static final long serialVersionUID = 1L;
+					private static final long serialVersionUID = -3248402289678462008L;
 		};
 	}
 	
