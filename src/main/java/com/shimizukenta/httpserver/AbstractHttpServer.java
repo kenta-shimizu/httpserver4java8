@@ -373,25 +373,6 @@ public abstract class AbstractHttpServer implements HttpServer {
 		}
 	}
 	
-	
-	/**
-	 * Returns Response-Message from Request-Message.
-	 * 
-	 * @param message
-	 * @param connectionValue
-	 * @param serverConfig
-	 * @return HttpResponseMessage
-	 * @throws InterruptedException
-	 * @throws HttpServerException
-	 */
-	abstract protected HttpResponseMessage receiveRequest(
-			HttpRequestMessage message,
-			HttpConnectionValue connectionValue,
-			HttpServerConfig serverConfig)
-					throws  InterruptedException, HttpServerException;
-	
-	
-	
 	protected static HttpRequestMessage createHttpRequestMessage(
 			HttpRequestLineParser requestLine,
 			HttpHeaderListParser headers,

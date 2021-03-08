@@ -24,7 +24,7 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 	}
 	
 	@Override
-	protected HttpResponseMessage receiveRequest(
+	public HttpResponseMessage receiveRequest(
 			HttpRequestMessage request,
 			HttpConnectionValue connectionValue,
 			HttpServerConfig serverConfig)

@@ -31,7 +31,23 @@ public interface HttpServer extends Closeable {
 	 * @return {@code true} if closed
 	 */
 	public boolean isClosed();
-
+	
+	/**
+	 * Returns Response-Message from Request-Message.
+	 * 
+	 * @param message
+	 * @param connectionValue
+	 * @param serverConfig
+	 * @return HttpResponseMessage
+	 * @throws InterruptedException
+	 * @throws HttpServerException
+	 */
+	public HttpResponseMessage receiveRequest(
+			HttpRequestMessage request,
+			HttpConnectionValue connectionValue,
+			HttpServerConfig serverConfig)
+					throws  InterruptedException, HttpServerException;
+	
 	/**
 	 * Add Http-Server-Log Listener.
 	 * 

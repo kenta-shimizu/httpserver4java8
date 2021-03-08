@@ -4,10 +4,10 @@ import java.io.IOException;
 
 public abstract class AbstractHttpProxyServer extends AbstractHttpServer {
 	
-	private final AbstractHttpServer in;
+	private final HttpServer in;
 	
 	public AbstractHttpProxyServer(
-			AbstractHttpServer in,
+			HttpServer in,
 			AbstractHttpServerConfig config) {
 		
 		super(config);
@@ -48,13 +48,13 @@ public abstract class AbstractHttpProxyServer extends AbstractHttpServer {
 	}
 	
 	@Override
-	protected HttpResponseMessage receiveRequest(
-			HttpRequestMessage message,
+	public HttpResponseMessage receiveRequest(
+			HttpRequestMessage request,
 			HttpConnectionValue connectionValue,
 			HttpServerConfig serverConfig)
 					throws InterruptedException, HttpServerException {
 		
-		return this.in.receiveRequest(message, connectionValue, serverConfig);
+		return this.in.receiveRequest(request, connectionValue, serverConfig);
 	}
 	
 }
