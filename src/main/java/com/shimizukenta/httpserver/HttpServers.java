@@ -5,9 +5,11 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
+import com.shimizukenta.httpserver.cacheproxyserver.AbstractHttpCacheProxyServer;
+import com.shimizukenta.httpserver.cacheproxyserver.AbstractHttpCacheProxyServerConfig;
+import com.shimizukenta.httpserver.cacheproxyserver.SimpleHttpCacheProxyServerConfig;
 import com.shimizukenta.httpserver.generalfileapi.AbstractGeneralFileApi;
 import com.shimizukenta.httpserver.jsonapi.AbstractJsonApi;
 import com.shimizukenta.httpserver.preflightapi.SimplePreFlightApi;
@@ -31,7 +33,7 @@ public class HttpServers {
 			@Override
 			public boolean accept(HttpRequestMessage request) {
 				
-				switch ( request.version() ) {
+			switch ( request.version() ) {
 				case HTTP_1_0: {
 					return false;
 					/* break; */
@@ -40,9 +42,9 @@ public class HttpServers {
 				case HTTP_2_0:
 				default: {
 					
-					Optional<String> opHost = request.headerListParser().host();
+					String host = request.headerListParser().host().orElse(null);
 					
-					if ( ! opHost.isPresent() ) {
+					if ( host == null ) {
 						return true;
 					}
 					
@@ -52,7 +54,7 @@ public class HttpServers {
 						return false;
 					}
 					
-					return ! hostNames.contains(opHost.get());
+					return ! hostNames.contains(host);
 				}
 				}
 			}
@@ -149,6 +151,25 @@ public class HttpServers {
 		
 		HttpServers a = SingletonHolder.inst;
 		return a.buildServer(a.createSimpleHttpServerConfig(address, rootPath), Arrays.asList(jsonApis));
+	}
+	
+	public static AbstractHttpCacheProxyServer wrapSimpleCacheProxyServer(
+			HttpServer server,
+			SocketAddress address
+			) {
+		
+		final SimpleHttpCacheProxyServerConfig config = new SimpleHttpCacheProxyServerConfig();
+		config.addServerAddress(address);
+		
+		return wrapSimpleCacheProxyServer(server, config);
+	}
+	
+	public static AbstractHttpCacheProxyServer wrapSimpleCacheProxyServer(
+			HttpServer server,
+			AbstractHttpCacheProxyServerConfig config
+			) {
+		
+		return new AbstractHttpCacheProxyServer(server, config) {};
 	}
 	
 }

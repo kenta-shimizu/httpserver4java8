@@ -8,14 +8,16 @@ public class HttpResponseStatusLine {
 	
 	private final HttpVersion version;
 	private final String versionStr;
-	private final String statusCode;
+	private HttpResponseCode statusCode;
+	private final String statusCodeStr;
 	private final String reasonPhrase;
 	private String cacheLine;
 	
 	public HttpResponseStatusLine(CharSequence version, CharSequence code, CharSequence reasonPhrase) {
 		this.version = HttpVersion.from(version);
 		this.versionStr = Objects.requireNonNull(version).toString();
-		this.statusCode = Objects.requireNonNull(code).toString();
+		this.statusCode = null;
+		this.statusCodeStr = Objects.requireNonNull(code).toString();
 		this.reasonPhrase = Objects.requireNonNull(reasonPhrase).toString();
 		this.cacheLine = null;
 	}
@@ -23,7 +25,8 @@ public class HttpResponseStatusLine {
 	public HttpResponseStatusLine(HttpVersion version, HttpResponseCode responseCode) {
 		this.version = version;
 		this.versionStr = version.toString();
-		this.statusCode = responseCode.codeString();
+		this.statusCode = responseCode;
+		this.statusCodeStr = responseCode.codeString();
 		this.reasonPhrase = responseCode.defaultReasonPhrase();
 		this.cacheLine = null;
 	}
@@ -32,11 +35,20 @@ public class HttpResponseStatusLine {
 		return this.version;
 	}
 	
+	public HttpResponseCode statusCode() {
+		synchronized ( this ) {
+			if ( this.statusCode == null ) {
+				this.statusCode = HttpResponseCode.from(statusCodeStr);
+			}
+			return this.statusCode;
+		}
+	}
+	
 	public String toLine() {
 		synchronized ( this ) {
 			if ( this.cacheLine == null ) {
 				this.cacheLine = versionStr + SP
-						+ statusCode + SP
+						+ statusCodeStr + SP
 						+ reasonPhrase;
 			}
 			return this.cacheLine;

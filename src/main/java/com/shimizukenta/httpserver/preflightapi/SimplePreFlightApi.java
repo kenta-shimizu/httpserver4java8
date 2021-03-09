@@ -6,6 +6,7 @@ import java.util.List;
 import com.shimizukenta.httpserver.AbstractHttpResponseMessage;
 import com.shimizukenta.httpserver.HttpConnectionValue;
 import com.shimizukenta.httpserver.HttpHeader;
+import com.shimizukenta.httpserver.HttpHeaderBuilder;
 import com.shimizukenta.httpserver.HttpHeaderListParser;
 import com.shimizukenta.httpserver.HttpRequestMessage;
 import com.shimizukenta.httpserver.HttpRequestMethod;
@@ -33,10 +34,12 @@ public class SimplePreFlightApi extends AbstractPreFlightApi {
 				request.version(),
 				HttpResponseCode.NoContent);
 		
+		final HttpHeaderBuilder hb = HttpHeaderBuilder.getInstance();
+		
 		final List<HttpHeader> headers = new ArrayList<>();
 		
-		headers.add(date());
-		headers.add(server(serverConfig));
+		headers.add(hb.date());
+		headers.add(hb.server(serverConfig));
 		
 		headers.add(accessControlAllowOrigin(request));
 		
@@ -48,8 +51,8 @@ public class SimplePreFlightApi extends AbstractPreFlightApi {
 				));
 		
 		headers.add(accessControlAllowCredentialsTrue());
-		headers.addAll(noCache(request));
-		headers.addAll(connectionKeeyAlive(request, connectionValue));
+		headers.addAll(hb.noCache(request));
+		headers.addAll(hb.connectionKeeyAlive(request, connectionValue));
 		
 		return new AbstractHttpResponseMessage(
 				statusLine,

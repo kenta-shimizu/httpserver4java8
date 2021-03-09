@@ -172,6 +172,29 @@ public final class HttpHeaderListParser {
 	}
 	
 	/**
+	 * Returns true if exist No-Cache-Control.
+	 * 
+	 * <p>
+	 * Exist "Cache-Control: no-cache"
+	 * Or "Cache-Contro: no-cache"
+	 * </p>
+	 * 
+	 * @return true if exist No-Cache-Control
+	 */
+	public boolean isNoCacheControl() {
+		
+		if ( getValues("Cache-Control").stream().anyMatch(v -> v.equalsIgnoreCase("no-cache"))) {
+			return true;
+		}
+		
+		if ( getValues("Pragma").stream().anyMatch(v -> v.equalsIgnoreCase("no-cache"))) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * Instance static-factory-method of HttpHeaders-List.
 	 * 
 	 * @param headers

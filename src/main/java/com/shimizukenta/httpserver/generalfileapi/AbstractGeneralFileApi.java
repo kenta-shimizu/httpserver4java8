@@ -13,6 +13,7 @@ import com.shimizukenta.httpserver.HttpConnectionValue;
 import com.shimizukenta.httpserver.HttpContentType;
 import com.shimizukenta.httpserver.HttpEncodingResult;
 import com.shimizukenta.httpserver.HttpHeader;
+import com.shimizukenta.httpserver.HttpHeaderBuilder;
 import com.shimizukenta.httpserver.HttpHeaderListParser;
 import com.shimizukenta.httpserver.HttpRequestMessage;
 import com.shimizukenta.httpserver.HttpResponseCode;
@@ -94,26 +95,28 @@ public abstract class AbstractGeneralFileApi extends AbstractHttpApi implements 
 				request.version(),
 				HttpResponseCode.OK);
 		
+		final HttpHeaderBuilder hb = HttpHeaderBuilder.getInstance();
+		
 		final List<HttpHeader> headers = new ArrayList<>();
 		
-		headers.add(date());
-		headers.add(server(serverConfig));
+		headers.add(hb.date());
+		headers.add(hb.server(serverConfig));
 		
 		try {
-			headers.add(lastModified(filePathZonedDateTime(filepath)));
+			headers.add(hb.lastModified(hb.filePathZonedDateTime(filepath)));
 		}
 		catch ( IOException giveup ) {
 			return HttpResponseMessage.build(request, HttpResponseCode.InternalServerError);
 		}
 		
 		encResult.optionalEncoding()
-		.map(x -> contentEncoding(x))
+		.map(x -> hb.contentEncoding(x))
 		.ifPresent(headers::add);
 		
-		headers.add(acceptRanges());
-		headers.add(contentLength(encResult.length()));
-		headers.add(contentType(HttpContentType.fromPath(filepath)));
-		headers.addAll(connectionKeeyAlive(request, connectionValue));
+		headers.add(hb.acceptRanges());
+		headers.add(hb.contentLength(encResult.length()));
+		headers.add(hb.contentType(HttpContentType.fromPath(filepath)));
+		headers.addAll(hb.connectionKeeyAlive(request, connectionValue));
 		
 		return new AbstractHttpResponseMessage(
 				statusLine,

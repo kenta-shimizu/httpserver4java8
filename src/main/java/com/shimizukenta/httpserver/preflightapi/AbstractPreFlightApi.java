@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import com.shimizukenta.httpserver.AbstractHttpApi;
 import com.shimizukenta.httpserver.AbstractHttpApiConfig;
 import com.shimizukenta.httpserver.HttpHeader;
+import com.shimizukenta.httpserver.HttpHeaderBuilder;
 import com.shimizukenta.httpserver.HttpRequestMessage;
 import com.shimizukenta.httpserver.HttpRequestMethod;
 import com.shimizukenta.httpserver.HttpServerRequestMessageParseException;
@@ -29,7 +30,7 @@ public abstract class AbstractPreFlightApi extends AbstractHttpApi implements Pr
 	
 	
 	protected static HttpHeader accessControlAllowOrigin(HttpRequestMessage request) throws HttpServerRequestMessageParseException {
-		return header(
+		return HttpHeaderBuilder.getInstance().header(
 				"Access-Control-Allow-Origin",
 				request.headerListParser().optionalValue("Origin")
 				.orElseThrow(() -> new HttpServerRequestMessageParseException())
@@ -37,7 +38,7 @@ public abstract class AbstractPreFlightApi extends AbstractHttpApi implements Pr
 	}
 	
 	protected static HttpHeader accessControlAllowMethods(CharSequence cs) {
-		return header("Access-Control-Allow-Methods", cs);
+		return HttpHeaderBuilder.getInstance().header("Access-Control-Allow-Methods", cs);
 	}
 	
 	protected static HttpHeader accessControlAllowMethods(HttpRequestMethod... methods) {
@@ -47,7 +48,7 @@ public abstract class AbstractPreFlightApi extends AbstractHttpApi implements Pr
 	}
 	
 	protected static HttpHeader accessControlAllowCredentialsTrue() {
-		return header("Access-Control-Allow-Credentials", "true");
+		return HttpHeaderBuilder.getInstance().header("Access-Control-Allow-Credentials", "true");
 	}
 	
 }

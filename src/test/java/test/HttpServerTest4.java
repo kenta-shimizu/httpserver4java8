@@ -1,10 +1,9 @@
 package test;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.file.Paths;
 
-import com.shimizukenta.httpserver.AbstractHttpProxyServer;
-import com.shimizukenta.httpserver.AbstractHttpServer;
 import com.shimizukenta.httpserver.HttpRequestMessage;
 import com.shimizukenta.httpserver.HttpRequestQuery;
 import com.shimizukenta.httpserver.HttpServer;
@@ -23,8 +22,9 @@ public class HttpServerTest4 {
 		
 		echo("Test start.");
 		
+		SocketAddress addr = new InetSocketAddress("127.0.0.1", 8080);
+		
 		final SimpleHttpServerConfig config = new SimpleHttpServerConfig();
-		config.addSocketAddress(new InetSocketAddress("127.0.0.1", 8080));
 		config.rootPath(Paths.get("./html"));
 		config.addDirectoryIndex("index.html");
 		config.addDirectoryIndex("index.htm");
@@ -60,19 +60,19 @@ public class HttpServerTest4 {
 		};
 		
 		try (
-				AbstractHttpServer server = HttpServers.jsonApiServer(config, jsonApi);
+				HttpServer apiServer = HttpServers.jsonApiServer(config, jsonApi);
 				) {
 			
 			try (
-					HttpServer proxy = new AbstractHttpProxyServer(server, config.apiServerConfig()) {};
+					HttpServer cacheProxy = HttpServers.wrapSimpleCacheProxyServer(apiServer, addr);
 					) {
 				
-				proxy.addLogListener(log -> {echo(log);});
+				cacheProxy.addLogListener(log -> {echo(log);});
 				
-				proxy.open();
+				cacheProxy.open();
 				
-				synchronized ( proxy ) {
-					proxy.wait();
+				synchronized ( cacheProxy ) {
+					cacheProxy.wait();
 				}
 			}
 		}

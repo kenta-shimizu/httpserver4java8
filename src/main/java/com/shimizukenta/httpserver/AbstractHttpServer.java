@@ -525,17 +525,41 @@ public abstract class AbstractHttpServer implements HttpServer {
 			HttpResponseMessage response)
 					throws InterruptedException, IOException, HttpServerException {
 		
+		final List<byte[]> ll;
+		
+		if ( request.method() == HttpRequestMethod.HEAD ) {
+			ll = Collections.singletonList(response.getHeadBytes());
+		} else {
+			ll = response.getBytes();
+		}
+		
+		sendBytes(channel, ll);
+		
+		switch ( request.version() ) {
+		case HTTP_2_0:
+		case HTTP_1_1: {
+			
+			return ! response.headerListParser().isConnectionClose();
+			/* break; */
+		}
+		case HTTP_1_0:
+		default : {
+			
+			return false;
+		}
+		}
+	}
+	
+	protected static void sendBytes(
+			AsynchronousSocketChannel channel,
+			List<byte[]> bss)
+					throws InterruptedException,
+					IOException,
+					HttpServerException {
+		
 		try {
 			
-			final List<byte[]> ll;
-			
-			if ( request.method() == HttpRequestMethod.HEAD ) {
-				ll = Collections.singletonList(response.getHeadBytes());
-			} else {
-				ll = response.getBytes();
-			}
-			
-			for ( byte[] bs : ll ) {
+			for ( byte[] bs : bss ) {
 				
 				final ByteBuffer buffer = ByteBuffer.allocate(bs.length);
 				buffer.put(bs);
@@ -573,22 +597,7 @@ public abstract class AbstractHttpServer implements HttpServer {
 			
 			throw new HttpServerResponseMessageException(t);
 		}
-		
-		switch ( request.version() ) {
-		case HTTP_2_0:
-		case HTTP_1_1: {
-			
-			return ! response.headerListParser().isConnectionClose();
-			/* break; */
-		}
-		case HTTP_1_0:
-		default : {
-			
-			return false;
-		}
-		}
 	}
-
 	
 	@Override
 	public void close() throws IOException {

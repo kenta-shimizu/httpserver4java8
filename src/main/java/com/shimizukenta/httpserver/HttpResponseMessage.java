@@ -7,13 +7,16 @@ public interface HttpResponseMessage extends HttpMessage {
 	/**
 	 * Returns HTTP-Response Status-Line.
 	 * 
-	 * <p>
-	 * <strong>Not</strong> include CRLF.<br />
-	 * </p>
-	 * 
-	 * @return
+	 * @return HttpRresponseStatusLine
 	 */
-	public String statusLine();
+	public HttpResponseStatusLine statusLine();
+	
+	/**
+	 * Returns Status-Code.
+	 * 
+	 * @return Status-Code
+	 */
+	public HttpResponseCode statusCode();
 	
 	/**
 	 * Returns Http-Response-Message from Http HEAD METHOD.

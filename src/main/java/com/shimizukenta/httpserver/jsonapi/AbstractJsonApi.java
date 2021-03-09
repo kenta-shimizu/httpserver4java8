@@ -13,6 +13,7 @@ import com.shimizukenta.httpserver.HttpConnectionValue;
 import com.shimizukenta.httpserver.HttpContentType;
 import com.shimizukenta.httpserver.HttpEncodingResult;
 import com.shimizukenta.httpserver.HttpHeader;
+import com.shimizukenta.httpserver.HttpHeaderBuilder;
 import com.shimizukenta.httpserver.HttpHeaderListParser;
 import com.shimizukenta.httpserver.HttpRequestMessage;
 import com.shimizukenta.httpserver.HttpResponseCode;
@@ -62,21 +63,23 @@ public abstract class AbstractJsonApi extends AbstractHttpApi implements JsonApi
 				request.version(),
 				HttpResponseCode.OK);
 		
+		final HttpHeaderBuilder hb = HttpHeaderBuilder.getInstance();
+		
 		final List<HttpHeader> headers = new ArrayList<>();
 		
-		headers.add(date());
-		headers.add(server(serverConfig));
-		headers.add(lastModified(nowZonedDateTime()));
+		headers.add(hb.date());
+		headers.add(hb.server(serverConfig));
+		headers.add(hb.lastModified(hb.nowZonedDateTime()));
 		
 		encResult.optionalEncoding()
-		.map(x -> contentEncoding(x))
+		.map(x -> hb.contentEncoding(x))
 		.ifPresent(headers::add);
 		
-		headers.addAll(noCache(request));
-		headers.add(acceptRanges());
-		headers.add(contentLength(encResult.length()));
-		headers.add(contentType(HttpContentType.JSON));
-		headers.addAll(connectionKeeyAlive(request, connectionValue));
+		headers.addAll(hb.noCache(request));
+		headers.add(hb.acceptRanges());
+		headers.add(hb.contentLength(encResult.length()));
+		headers.add(hb.contentType(HttpContentType.JSON));
+		headers.addAll(hb.connectionKeeyAlive(request, connectionValue));
 		
 		return new AbstractHttpResponseMessage(
 				statusLine,

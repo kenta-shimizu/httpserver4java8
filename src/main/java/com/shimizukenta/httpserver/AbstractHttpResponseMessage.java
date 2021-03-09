@@ -101,7 +101,7 @@ public abstract class AbstractHttpResponseMessage extends AbstractHttpMessage im
 						ByteArrayOutputStream baos = new ByteArrayOutputStream();
 						) {
 					
-					baos.write(statusLine().getBytes(StandardCharsets.US_ASCII));
+					baos.write(statusLine().toLine().getBytes(StandardCharsets.US_ASCII));
 					baos.write(CrLfBytes);
 					
 					for ( String line : headerLines() ) {
@@ -122,8 +122,13 @@ public abstract class AbstractHttpResponseMessage extends AbstractHttpMessage im
 	}
 
 	@Override
-	public String statusLine() {
-		return statusLine.toLine();
+	public HttpResponseStatusLine statusLine() {
+		return statusLine;
+	}
+	
+	@Override
+	public HttpResponseCode statusCode() {
+		return statusLine.statusCode();
 	}
 	
 	@Override
