@@ -183,11 +183,31 @@ public final class HttpHeaderListParser {
 	 */
 	public boolean isNoCacheControl() {
 		
-		if ( getValues("Cache-Control").stream().anyMatch(v -> v.equalsIgnoreCase("no-cache"))) {
+		if (
+				getValues("Cache-Control").stream()
+				.map(v -> v.toLowerCase())
+				.anyMatch(v -> {
+					
+					if ( v.contains("no-cache") ) {
+						return true;
+					}
+					
+					if ( v.contains("no-store") ) {
+						return true;
+					}
+					
+					return false;
+				})
+				) {
+			
 			return true;
 		}
 		
-		if ( getValues("Pragma").stream().anyMatch(v -> v.equalsIgnoreCase("no-cache"))) {
+		if (
+				getValues("Pragma").stream()
+				.anyMatch(v -> v.equalsIgnoreCase("no-cache"))
+				) {
+			
 			return true;
 		}
 		

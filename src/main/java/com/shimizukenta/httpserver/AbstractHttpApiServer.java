@@ -10,7 +10,6 @@ public abstract class AbstractHttpApiServer extends AbstractHttpServer implement
 	}
 	
 	
-	
 	private final Collection<HttpApi> apis = new CopyOnWriteArrayList<>();
 	
 	@Override

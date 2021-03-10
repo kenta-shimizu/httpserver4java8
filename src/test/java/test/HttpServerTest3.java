@@ -9,6 +9,7 @@ import com.shimizukenta.httpserver.HttpServer;
 import com.shimizukenta.httpserver.HttpServerException;
 import com.shimizukenta.httpserver.HttpServers;
 import com.shimizukenta.httpserver.jsonapi.AbstractJsonApi;
+import com.shimizukenta.httpserver.jsonapi.JsonApi;
 
 public class HttpServerTest3 {
 
@@ -20,7 +21,7 @@ public class HttpServerTest3 {
 		
 		echo("Test start.");
 		
-		final AbstractJsonApi jsonApi = new AbstractJsonApi() {
+		final JsonApi jsonApi = new AbstractJsonApi() {
 			
 			@Override
 			public boolean accept(HttpRequestMessage request) {

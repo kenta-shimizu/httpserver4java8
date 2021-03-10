@@ -13,7 +13,24 @@ public abstract class AbstractHttpProxyServer extends AbstractHttpServer {
 		super(config);
 		this.in = in;
 		
-		this.in.addLogListener(super::putLog);
+		this.in.addLogListener(this::putLog);
+	}
+	
+	@Override
+	public void open() throws IOException {
+		
+		synchronized ( this ) {
+			
+			if ( this.isClosed() ) {
+				throw new IOException("Alread closed");
+			}
+			
+			if ( this.in.isOpen() ) {
+				throw new IOException("Alread opened");
+			}
+			
+			super.open();
+		}
 	}
 	
 	@Override
@@ -45,6 +62,26 @@ public abstract class AbstractHttpProxyServer extends AbstractHttpServer {
 				throw ioExcept;
 			}
 		}
+	}
+	
+	@Override
+	public boolean isOpen() {
+		
+		if ( this.in.isOpen() ) {
+			return true;
+		}
+		
+		return super.isOpen();
+	}
+	
+	@Override
+	public boolean isClosed() {
+		
+		if ( this.in.isClosed() ) {
+			return true;
+		}
+		
+		return  super.isClosed();
 	}
 	
 	@Override

@@ -69,9 +69,6 @@ public abstract class AbstractHttpCacheProxyServer extends AbstractHttpProxyServ
 		
 		if ( ! request.headerListParser().isNoCacheControl() ) {
 			
-			//TODO
-			//Authri
-			
 			final HttpResponseMessage cacheRsp = getCache(request);
 			
 			if ( cacheRsp != null ) {
@@ -86,9 +83,11 @@ public abstract class AbstractHttpCacheProxyServer extends AbstractHttpProxyServ
 			}
 		}
 		
-		HttpResponseMessage rsp = super.receiveRequest(request, connectionValue, serverConfig);
-		entryCache(request, rsp);
-		return rsp;
+		{
+			HttpResponseMessage rsp = super.receiveRequest(request, connectionValue, serverConfig);
+			entryCache(request, rsp);
+			return rsp;
+		}
 	}
 	
 	private final Collection<Inner> caches = new HashSet<>();
@@ -120,6 +119,10 @@ public abstract class AbstractHttpCacheProxyServer extends AbstractHttpProxyServ
 		}
 		
 		if ( response.headerListParser().isNoCacheControl() ) {
+			return false;
+		}
+		
+		if ( response.headerListParser().optionalValue("Authorization").isPresent() ) {
 			return false;
 		}
 		
