@@ -51,11 +51,11 @@ public class SimpleHttpServerConfig {
 		return this.generalFileApiConfig.removeDirectoryIndex(fileName);
 	}
 	
-	public boolean addAcceptServerName(CharSequence hostName) {
+	public boolean addAcceptHostName(CharSequence hostName) {
 		return this.apiServerConfig.addAcceptHostName(hostName);
 	}
 	
-	public boolean removeAcceptServerName(CharSequence hostName) {
+	public boolean removeAcceptHostName(CharSequence hostName) {
 		return this.apiServerConfig.removeAcceptHostName(hostName);
 	}
 	

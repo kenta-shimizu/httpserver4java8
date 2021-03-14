@@ -91,8 +91,13 @@ public class HttpServers {
 		config.addDirectoryIndex("index.html");
 		config.addDirectoryIndex("index.htm");
 		
-		config.addSocketAddress(address);
-		config.rootPath(rootPath);
+		if ( address != null ) {
+			config.addSocketAddress(address);
+		}
+		
+		if ( rootPath != null ) {
+			config.rootPath(rootPath);
+		}
 		
 		return config;
 	}
@@ -208,3 +213,4 @@ public class HttpServers {
 	}
 	
 }
+
